@@ -20,7 +20,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 public class ContractServiceIT {
 
   @Autowired
-  private ContractServiceImpl service;  // want to test non public method
+  private ContractServiceImpl service;  // use the Impl to test non public method
 
   @Test
   public void testConvertSomeContractsToZentralrufDTO() throws ContractException {
