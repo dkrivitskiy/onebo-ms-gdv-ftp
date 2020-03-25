@@ -1,6 +1,5 @@
 package com.one.gdvftp.entity;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -28,9 +27,6 @@ public class ContractDetail {
 
   @Column(name="isdeleted")
   private Boolean deleted;
-
-  @Column(name="validto__c")
-  private LocalDateTime validTo;
 
   @OneToMany(mappedBy = "contractDetail", fetch = FetchType.EAGER)
   private List<ContractDetailParameter> parameters;

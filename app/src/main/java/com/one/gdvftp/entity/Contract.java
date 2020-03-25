@@ -1,5 +1,6 @@
 package com.one.gdvftp.entity;
 
+import java.time.LocalDate;
 import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -33,6 +34,10 @@ public class Contract {
 
   @Column(name="symassid__c")
   private String symassid;
+
+  @Column(name="validto__c")
+  private LocalDate validTo;
+
 
   @ManyToOne
   @JoinColumn(name = "country__r__pkexternalid__c")

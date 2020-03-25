@@ -10,7 +10,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -41,7 +41,7 @@ public class ContractRepositoryIT {
   @Test
   public void testFindContractsForZentralruf() {
 
-    val zentralrufContractsTop10 = repo.findContractsForZentralruf(LocalDateTime.of(1970,1,1,0,0), 10);
+    val zentralrufContractsTop10 = repo.findContractsForZentralruf(LocalDate.of(1970,1,1), 10);
 
     assertThat(zentralrufContractsTop10).isNotEmpty();
 
