@@ -10,6 +10,9 @@ import com.one.gdvftp.service.ContractException;
 import com.one.gdvftp.service.ContractService;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,13 +20,15 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor(onConstructor = @__(@Autowired))
+@SuppressWarnings("UnnecessaryLocalVariable")
 public class ContractServiceImpl implements ContractService {
 
-  @Value("${message.insurance.insurance-number}")
+  @Value("${message.insurance.insurance-number}")  // TODO: can this be a constructor parameter?
   private Short insuranceNumber;
 
-  @Autowired
-  ContractRepository repo;
+
+  private final @NonNull ContractRepository repo;
 
 
   @Override
