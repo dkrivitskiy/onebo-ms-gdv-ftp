@@ -1,8 +1,5 @@
 package com.one.gdvftp.repository;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
 import com.one.gdvftp.boot.Application;
 
 import lombok.val;
@@ -12,6 +9,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.junit4.SpringRunner;
+
+import java.time.LocalDateTime;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = Application.class, webEnvironment = SpringBootTest.WebEnvironment.NONE)
@@ -27,30 +30,26 @@ public class ContractRepositoryIT {
 
       val contractsTop10 = repo.findAll(PageRequest.of(0, 10)).getContent();
 
-      val size = contractsTop10.size();
-      assertTrue("No records retrieved from database.",size>0);
+      assertThat(contractsTop10).isNotEmpty();
 
       // TODO: remove later
-      System.out.println("found "+size+" contracts");
+      System.out.println("found "+contractsTop10.size()+" contracts");
       contractsTop10.forEach(System.out::println);
 
   }
 
   @Test
-  public void testRetrieveContractsOfGermanyAndMotor() {
+  public void testFindContractsForZentralruf() {
 
-    val isoCode = "DE";
-    val group = "Motor";
+    val zentralrufContractsTop10 = repo.findContractsForZentralruf(LocalDateTime.of(1970,1,1,0,0), 10);
 
-    val germanContractsTop10 = repo.findByCountryIsoCountryCodeAndProductGroupNameAndDeleted(
-            isoCode, group, false, PageRequest.of(0, 10)).getContent();
+    assertThat(zentralrufContractsTop10).isNotEmpty();
 
-    val size = germanContractsTop10.size();
-    assertTrue("No records retrieved from database.",size>0);
-
-    germanContractsTop10.forEach(c -> {
-      assertEquals("CountryIsoCode is wrong.", isoCode, c.getCountry().getIsoCountryCode());
-      assertEquals("ProductGroupName is wrong.", group, c.getProductGroup().getName());
+    zentralrufContractsTop10.forEach(c -> {
+      assertThat(c.getDeleted()).isFalse();
+      assertThat(c.getCountry().getIsoCountryCode()).isEqualTo("DE");
+      assertThat(c.getProductGroup().getName()).isEqualTo("Motor");
     });
+
   }
 }

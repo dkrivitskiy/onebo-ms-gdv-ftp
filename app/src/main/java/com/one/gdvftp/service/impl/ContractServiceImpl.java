@@ -16,8 +16,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+
+import javax.persistence.EntityManager;
+
 
 @Service
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
@@ -27,6 +29,7 @@ public class ContractServiceImpl implements ContractService {
   @Value("${message.insurance.insurance-number}")  // TODO: can this be a constructor parameter?
   private Short insuranceNumber;
 
+  private final @NonNull EntityManager em;
 
   private final @NonNull ContractRepository repo;
 

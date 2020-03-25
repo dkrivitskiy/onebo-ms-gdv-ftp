@@ -1,5 +1,6 @@
 package com.one.gdvftp.entity;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -10,10 +11,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 
 @Entity
 @Table(name = "contractdetail__c")
@@ -21,6 +19,7 @@ import lombok.ToString;
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
+@With
 public class ContractDetail {
 
   @Id
@@ -29,6 +28,9 @@ public class ContractDetail {
 
   @Column(name="isdeleted")
   private Boolean deleted;
+
+  @Column(name="validto__c")
+  private LocalDateTime validTo;
 
   @OneToMany(mappedBy = "contractDetail", fetch = FetchType.EAGER)
   private List<ContractDetailParameter> parameters;

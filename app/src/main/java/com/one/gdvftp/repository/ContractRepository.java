@@ -11,13 +11,5 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface ContractRepository extends JpaRepository<Contract, String> {
-
-  Page<Contract> findByCountryIsoCountryCodeAndProductGroupNameAndDeleted(String country, String group, Boolean deleted, Pageable pageable);
-
-  default List<Contract> findContractsForZentralruf(int limit) {
-    val result = findByCountryIsoCountryCodeAndProductGroupNameAndDeleted(
-            "DE", "Motor", false, PageRequest.of(0, limit)).getContent();
-    return result;
-  }
+public interface ContractRepository extends JpaRepository<Contract, String>, ContractRepositoryExtension {
 }

@@ -1,10 +1,13 @@
 package com.one.gdvftp.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertTrue;
 
 import com.one.gdvftp.boot.Application;
 import com.one.gdvftp.repository.ContractRepository;
 import com.one.gdvftp.service.ContractException;
+
+import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -30,12 +33,11 @@ public class ContractServiceIT {
   @Test
   public void testConvertSomeContractsToZentralrufDTO() throws ContractException {
 
-    val contractsTops = repo.findContractsForZentralruf(10);
+    val contractsTops = repo.findContractsForZentralruf(
+            LocalDateTime.of(1970,1,1,0,0), 10);
 
-    val size = contractsTops.size();
-    assertTrue("No records retrieved from database.",size>0);
-
-    System.out.println("found "+size+" contracts");
+    assertThat(contractsTops).isNotEmpty();
+      System.out.println("found "+contractsTops.size()+" contracts");
 
     val records = contractsTops.stream().
         map(c -> {
