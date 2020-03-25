@@ -1,0 +1,75 @@
+app:
+  environment:${spring.profiles.active}
+  
+spring:
+  application:
+    name: ms-one-gdv
+  datasource:
+    platform: postgres
+    url: jdbc:postgresql://ec2-52-214-134-168.eu-west-1.compute.amazonaws.com:5432/d6majjelgmj5jm?ssl=true&sslfactory=org.postgresql.ssl.NonValidatingFactory
+    username: -
+    password: -
+    driverClassName: org.postgresql.Driver
+  jpa:
+    database: POSTGRESQL
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        jdbc.lob.non_contextual_creation: true
+        temp.use_jdbc_metadata_defaults: false
+        show_sql: true
+        default_schema: salesforce
+
+  jackson:
+    default-property-inclusion: NON_NULL
+    
+  http:
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
+      
+  boot:
+    admin:
+      context-path: /admin
+      monitor:
+        status-interval: 60000
+      client:
+        instance:
+          prefer-ip: true
+          metadata:
+            user:
+              name: ${security.clientId}
+              password: ${security.secret}
+              
+        username: ${security.clientId}
+        password: ${security.secret}
+        url: http://localhost:8080${spring.boot.admin.context-path}
+      
+logging:
+  file: logs/onebo-ms-gdvftp.log
+    
+logbook:
+  include:
+    - /api/**
+  filter.enabled: true
+  secure-filter.enabled: true
+  format.style: json
+  obfuscate:
+    headers:
+      - Authorization
+    write:
+      chunk-size: 1000
+      
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,loggers,logger,logfile,metrics
+  endpoint:
+    health:
+      show-details: always
+
+message:
+  insurance:
+    insurance-number: 9496
