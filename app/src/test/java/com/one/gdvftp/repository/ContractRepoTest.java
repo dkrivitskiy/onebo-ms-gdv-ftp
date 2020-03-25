@@ -34,19 +34,32 @@ public class ContractRepoTest {
     private ContractRepository repo;
 
     private final Country germany = new Country("de", "Deutschland", "DE");
+    private final Country schweiz = new Country("ch", "Schweiz", "CH");
     private final ProductGroup motor = new ProductGroup("m", "Motor");
-    private final Contract c = new Contract("1",false,"one", "1111",
+    private final ProductGroup haus = new ProductGroup("h", "Hausrat");
+    private final Contract good = new Contract("1",false,"one", "1111",
             germany, motor, Collections.EMPTY_LIST);
 
     @Test
     public void findContractsForZentralruf() throws Exception {
         assertThat(manager).isNotNull();
         assertThat(repo).isNotNull();
-        persist(c);
+        persist(good);
+        persist(good.withPk("2").withDeleted(true).withDetails(Collections.EMPTY_LIST));
+        persist(good.withPk("3").withCountry(schweiz).withDetails(Collections.EMPTY_LIST));
+        persist(good.withPk("4").withProductGroup(haus).withDetails(Collections.EMPTY_LIST));
+
         manager.flush();
+        // All must be persisted.
+        assertThat(repo.findAll()).hasSize(4);
+
         val liste = repo.findContractsForZentralruf(10);
-        assertThat(liste).isNotEmpty();
-        System.out.println(liste);
+        // Only one fits the criteria.
+        assertThat(liste).hasSize(1);
+
+        val contract = liste.get(0);
+        // That one must be the good one, and all fields must have the correct value.
+        assertThat(contract).isEqualToComparingFieldByFieldRecursively(good);
     }
 
     private void persist(Contract c) {
