@@ -42,7 +42,8 @@ public class ContractRepositoryIT {
     val isoCode = "DE";
     val group = "Motor";
 
-    val germanContractsTop10 = repo.findByCountryIsoCountryCodeAndProductGroupNameAndDeleted(isoCode, group, false, PageRequest.of(0, 10)).getContent();
+    val germanContractsTop10 = repo.findByCountryIsoCountryCodeAndProductGroupNameAndDeleted(
+            isoCode, group, false, PageRequest.of(0, 10)).getContent();
 
     val size = germanContractsTop10.size();
     assertTrue("No records retrieved from database.",size>0);

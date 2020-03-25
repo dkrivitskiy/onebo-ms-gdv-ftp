@@ -41,11 +41,6 @@ public class ContractServiceImpl implements ContractService {
         .build();
   }
 
-  List<Contract> findContractsForZentralruf(int limit) {
-    val result = repo.findByCountryIsoCountryCodeAndProductGroupNameAndDeleted(
-        "DE", "Motor", false, PageRequest.of(0, limit)).getContent();
-    return result;
-  }
 
   // The detail must not be deleted.
   // Returns the parameters which are not deleted.

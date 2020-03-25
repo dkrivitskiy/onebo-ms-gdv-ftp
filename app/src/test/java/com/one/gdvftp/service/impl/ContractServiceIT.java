@@ -7,6 +7,8 @@ import com.one.gdvftp.repository.ContractRepository;
 import com.one.gdvftp.service.ContractException;
 import java.util.Objects;
 import java.util.stream.Collectors;
+
+import com.one.gdvftp.service.ContractService;
 import lombok.val;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -20,12 +22,15 @@ import org.springframework.test.context.junit4.SpringRunner;
 public class ContractServiceIT {
 
   @Autowired
-  private ContractServiceImpl service;  // use the Impl to test non public method
+  private ContractRepository repo;
+
+  @Autowired
+  private ContractService service;
 
   @Test
   public void testConvertSomeContractsToZentralrufDTO() throws ContractException {
 
-    val contractsTops = service.findContractsForZentralruf(1000);
+    val contractsTops = repo.findContractsForZentralruf(10);
 
     val size = contractsTops.size();
     assertTrue("No records retrieved from database.",size>0);

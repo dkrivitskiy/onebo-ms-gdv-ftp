@@ -16,6 +16,7 @@
 		<restassured.version>2.9.0</restassured.version>
 		<spring.boot.admin.version>2.1.6</spring.boot.admin.version>
 		<spring.boot.admin.security.version>1.5.7</spring.boot.admin.security.version>
+		<h2databse.version>1.4.200</h2databse.version>
 	</properties>
 
 	<dependencies>
@@ -53,6 +54,12 @@
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
 			<version>${postgresql.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.h2database</groupId>
+			<artifactId>h2</artifactId>
+			<version>${h2databse.version}</version>
+			<scope>test</scope>
 		</dependency>
 
 		<!-- Tracing -->
