@@ -1,4 +1,4 @@
-package com.one.gdvftp.service.impl;
+package com.one.gdvftp.service;
 
 import static org.junit.Assert.assertTrue;
 
