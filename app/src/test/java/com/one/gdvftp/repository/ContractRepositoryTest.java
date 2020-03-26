@@ -25,7 +25,7 @@ import static org.assertj.core.api.Assertions.assertThat;
         "spring.jpa.properties.hibernate.default_schema=PUBLIC",
         "spring.jpa.hibernate.ddl-auto=create-drop"
 })
-public class ContractRepoTest {
+public class ContractRepositoryTest {
 
     @Autowired
     private TestEntityManager manager;
@@ -50,7 +50,10 @@ public class ContractRepoTest {
         assertThat(manager).isNotNull();
         assertThat(repo).isNotNull();
 
+        // Contracts that fits the criteria for Zentralruf (ONEBACK-2444)
         persist(goodContract);
+
+        // Contracts that do not fit the criteria
         persist(goodContract.withPk("2").withDeleted(true));
         persist(goodContract.withPk("3").withCountry(schweiz));
         persist(goodContract.withPk("4").withProductGroup(haus));
