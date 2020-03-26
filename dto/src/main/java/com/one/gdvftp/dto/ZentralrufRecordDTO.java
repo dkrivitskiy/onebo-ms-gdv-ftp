@@ -32,6 +32,10 @@ public class ZentralrufRecordDTO {
    *  not applicable */
   @NonNull final private Short wagN=0;
 
+  /** Nummer des/der zuständigen VU-Agenten / VU-Außenstelle / Sachbearbeiters
+   *  not applicable */
+  @NonNull final private Short agent=0;
+
   /** Beginn der Haftpflicht- bzw. Kasko-VS
    *  Initial Valid From Date (DDMMYYYY) */
   @NonNull final private LocalDateTime favDatAb;
