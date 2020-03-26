@@ -50,6 +50,8 @@ public class ContractServiceImpl implements ContractService {
         .faKz(normalizedLicensePlate(parameters))
         .favDatAb(initialValidFrom(details, display))
         .favDatBis(contract.getValidTo())
+        .khVkTk(productType(parameters))
+        .schutzbrief(assistance(parameters))
         .build();
   }
 
@@ -95,6 +97,14 @@ public class ContractServiceImpl implements ContractService {
 
   private static String normalizedLicensePlate(List<ContractDetailParameter> params) {
     return parameter("NormalizedLicensePlate", params);
+  }
+
+  private static String productType(List<ContractDetailParameter> params) {
+    return parameter("productType", params);
+  }
+
+  private static Boolean assistance(List<ContractDetailParameter> params) {
+    return Boolean.valueOf(parameter("Assistance", params));
   }
 
 }

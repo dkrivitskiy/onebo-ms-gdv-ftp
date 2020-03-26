@@ -44,4 +44,22 @@ public class ZentralrufRecordDTO {
    *  Valid To (DDMMYYYY) */
   final private LocalDate favDatBis;
 
+  /**
+   * KH/VK/TK Art der Deckung
+   *
+   * vehicle-liability      -> 01 = KH
+   * fully-comprehensive    -> 02 = VK (Vollkasko)
+   * partial-comprehensive  -> 03 = TK (Teilkasko)
+   */
+  @NonNull final private String khVkTk;
+
+  /**
+   * Art der Schutzbrief-Deckung
+   *
+   * false  ->  0 = keine Deckung
+   * true   ->  1 = fahrzeugbezogener Schutzbrief
+   *            2 = Pannenhilfe
+   */
+  @NonNull final private Boolean schutzbrief;
+
 }
