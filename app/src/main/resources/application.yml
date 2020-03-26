@@ -73,3 +73,4 @@ management:
 message:
   insurance:
     insurance-number: 9496
+    insurance-branch: 1

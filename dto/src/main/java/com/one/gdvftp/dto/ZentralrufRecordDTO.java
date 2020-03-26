@@ -16,6 +16,10 @@ public class ZentralrufRecordDTO {
    *  ONE's insurance number 9496 */
   @NonNull final private Short vuNr;
 
+  /** Nummer der VU-Geschäftsstelle
+   *  ONE's insurance number 001 */
+  @NonNull final private Short vuGstNr;
+
   /** Vertrag
    *  Contract Number */
   @NonNull final private String vertr;

@@ -30,6 +30,9 @@ public class ContractServiceImpl implements ContractService {
   @Value("${message.insurance.insurance-number}")  // TODO: can this be a constructor parameter?
   private Short insuranceNumber;
 
+  @Value("${message.insurance.insurance-branch}")  // TODO: can this be a constructor parameter?
+  private Short insuranceBranch;
+
   private final @NonNull EntityManager em;
 
   private final @NonNull ContractRepository repo;
@@ -42,6 +45,7 @@ public class ContractServiceImpl implements ContractService {
     val parameters = parameters(details);
     return ZentralrufRecordDTO.builder()
         .vuNr(insuranceNumber)
+        .vuGstNr(insuranceBranch)
         .vertr(contract.getSymassid())
         .faKz(normalizedLicensePlate(parameters))
         .favDatAb(initialValidFrom(details, display))
