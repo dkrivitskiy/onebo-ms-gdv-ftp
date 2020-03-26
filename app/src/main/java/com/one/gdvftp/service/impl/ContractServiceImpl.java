@@ -8,6 +8,7 @@ import com.one.gdvftp.entity.Display;
 import com.one.gdvftp.repository.ContractRepository;
 import com.one.gdvftp.service.ContractException;
 import com.one.gdvftp.service.ContractService;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -36,33 +37,37 @@ public class ContractServiceImpl implements ContractService {
 
   @Override
   public ZentralrufRecordDTO zentralrufRecordDTO(Contract contract) throws ContractException {
-    val parameters = parameters(detail(contract));
+    val display = contract.toString();  // TODO: maybe implement Contract.display()
+    val details = details(contract);
+    val parameters = parameters(details);
     return ZentralrufRecordDTO.builder()
         .vuNr(insuranceNumber)
         .vertr(contract.getSymassid())
         .faKz(normalizedLicensePlate(parameters))
-        //.favDatAb()
+        .favDatAb(initialValidFrom(details, display))
         .build();
   }
 
 
-  // The detail must not be deleted.
+  private static LocalDateTime initialValidFrom(List<ContractDetail> details, String display) {
+    val result = details.stream().map(ContractDetail::getValidFrom).min(LocalDateTime::compareTo);
+    return result.orElseThrow(()->new ContractException("ValidFrom is missing", display));
+  }
+
   // Returns the parameters which are not deleted.
-  private static List<ContractDetailParameter> parameters(ContractDetail detail) {
-    if(detail.getDeleted()) throw new ContractException("ContractDetail is deleted.", detail.toString());
-    val result = detail.getParameters().stream().filter(p -> !p.getDeleted()).collect(Collectors.toList());
+  private static List<ContractDetailParameter> parameters(List<ContractDetail> details) {
+    val result = details.stream().flatMap(
+        d -> d.getParameters().stream().filter(p -> !p.getDeleted())
+    ).collect(Collectors.toList());
     return result;
   }
 
-  // The contract must not be deleted and
-  // must have exactly one detail which is not deleted.
-  private static ContractDetail detail(Contract contract) throws ContractException {
+  // The contract must not be deleted.
+  // Return all ContractDetails which are not deleted.
+  private static List<ContractDetail> details(Contract contract) throws ContractException {
     if(contract.getDeleted()) throw new ContractException("Contract is deleted.", contract.toString());
-    val details = contract.getDetails().stream().
+    val result = contract.getDetails().stream().
         filter(d -> !d.getDeleted()).collect(Collectors.toList());
-    if(details.isEmpty()) throw new ContractException("Contract has not undeleted details.", contract.toString());
-    if(details.size()>1) throw new ContractException("Contract has more than 1 undeleted detail.", contract.toString());
-    val result = details.get(0);
     return result;
   }
 

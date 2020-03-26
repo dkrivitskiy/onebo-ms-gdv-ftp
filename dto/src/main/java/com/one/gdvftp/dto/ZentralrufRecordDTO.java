@@ -1,5 +1,6 @@
 package com.one.gdvftp.dto;
 
+import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NonNull;
@@ -26,9 +27,9 @@ public class ZentralrufRecordDTO {
    *  not applicable */
   @NonNull final private Short wagN=0;
 
-//  /** Beginn der Haftpflicht- bzw. Kasko-VS
-//   *  Initial Valid From Date (DDMMYYYY) */
-//  @NonNull final private Integer favDatAb;
+  /** Beginn der Haftpflicht- bzw. Kasko-VS
+   *  Initial Valid From Date (DDMMYYYY) */
+  @NonNull final private LocalDateTime favDatAb;
 
   /** Stornodatum bzw. leer
    *  Valid To (DDMMYYYY) */
