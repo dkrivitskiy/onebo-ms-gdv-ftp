@@ -40,7 +40,8 @@ public class ContractServiceImpl implements ContractService {
     return ZentralrufRecordDTO.builder()
         .vuNr(insuranceNumber)
         .vertr(contract.getSymassid())
-        .faKz(licensePlate(parameters))
+        .faKz(normalizedLicensePlate(parameters))
+        //.favDatAb()
         .build();
   }
 
@@ -82,8 +83,8 @@ public class ContractServiceImpl implements ContractService {
     };
   }
 
-  private static String licensePlate(List<ContractDetailParameter> params) {
-    return parameter("licensePlate", params);
+  private static String normalizedLicensePlate(List<ContractDetailParameter> params) {
+    return parameter("NormalizedLicensePlate", params);
   }
 
 }
