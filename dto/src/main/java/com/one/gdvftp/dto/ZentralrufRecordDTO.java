@@ -1,5 +1,6 @@
 package com.one.gdvftp.dto;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -33,6 +34,6 @@ public class ZentralrufRecordDTO {
 
   /** Stornodatum bzw. leer
    *  Valid To (DDMMYYYY) */
-  @NonNull final private Integer favDatBis=0;
+  final private LocalDate favDatBis;
 
 }

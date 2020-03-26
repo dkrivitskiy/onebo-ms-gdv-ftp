@@ -45,6 +45,7 @@ public class ContractServiceImpl implements ContractService {
         .vertr(contract.getSymassid())
         .faKz(normalizedLicensePlate(parameters))
         .favDatAb(initialValidFrom(details, display))
+        .favDatBis(contract.getValidTo())
         .build();
   }
 
