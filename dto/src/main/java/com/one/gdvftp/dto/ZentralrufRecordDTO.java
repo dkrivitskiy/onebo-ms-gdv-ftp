@@ -63,4 +63,15 @@ public class ZentralrufRecordDTO {
   @NonNull final private Boolean schutzbrief;
 
   @NonNull final private String tkSb;
+
+  /**
+   * Herstellernummer
+   */
+  @NonNull final private Short hsn;
+
+  /**
+   * Typschlüsselnummer
+   */
+  @NonNull final private String tsn;
+
 }

@@ -53,6 +53,8 @@ public class ContractServiceImpl implements ContractService {
         .khVkTk(productType(parameters))
         .schutzbrief(assistance(parameters))
         .tkSb(deductible(parameters))
+        .hsn(hsn(parameters))
+        .tsn(tsn(parameters))
         .build();
   }
 
@@ -110,5 +112,13 @@ public class ContractServiceImpl implements ContractService {
 
   private static String deductible(List<ContractDetailParameter> params) {
     return parameter("deductible", params);
+  }
+
+  private static Short hsn(List<ContractDetailParameter> params) {
+    return Short.valueOf(parameter("vehicleHSN", params));
+  }
+
+  private static String tsn(List<ContractDetailParameter> params) {
+    return parameter("vehicleTSN", params);
   }
 }
