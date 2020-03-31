@@ -52,6 +52,7 @@ public class ContractServiceImpl implements ContractService {
         .favDatBis(contract.getValidTo())
         .khVkTk(productType(parameters))
         .schutzbrief(assistance(parameters))
+        .tkSb(deductible(parameters))
         .build();
   }
 
@@ -107,4 +108,7 @@ public class ContractServiceImpl implements ContractService {
     return Boolean.valueOf(parameter("Assistance", params));
   }
 
+  private static String deductible(List<ContractDetailParameter> params) {
+    return parameter("deductible", params);
+  }
 }

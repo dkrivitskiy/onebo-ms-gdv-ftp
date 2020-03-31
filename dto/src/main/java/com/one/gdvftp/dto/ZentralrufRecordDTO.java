@@ -62,4 +62,5 @@ public class ZentralrufRecordDTO {
    */
   @NonNull final private Boolean schutzbrief;
 
+  @NonNull final private String tkSb;
 }
