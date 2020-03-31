@@ -8,7 +8,10 @@ import com.one.gdvftp.entity.Display;
 import com.one.gdvftp.repository.ContractRepository;
 import com.one.gdvftp.service.ContractException;
 import com.one.gdvftp.service.ContractService;
+import java.time.Instant;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -55,6 +58,7 @@ public class ContractServiceImpl implements ContractService {
         .tkSb(deductible(parameters))
         .hsn(hsn(parameters))
         .tsn(tsn(parameters))
+        .zulassung(zulassung(parameters))
         .build();
   }
 
@@ -120,5 +124,13 @@ public class ContractServiceImpl implements ContractService {
 
   private static String tsn(List<ContractDetailParameter> params) {
     return parameter("vehicleTSN", params);
+  }
+
+  private static LocalDate zulassung(List<ContractDetailParameter> params) {
+    val milliseconds = Long.valueOf(parameter("firstRegistrationDateInsured", params));
+    val localDateTime = LocalDateTime.ofInstant(
+        Instant.ofEpochMilli(milliseconds), ZoneId.of("CET"));  // TODO: ensure that this is the correct timezone
+    val result = localDateTime.toLocalDate();
+    return result;
   }
 }

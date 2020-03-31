@@ -74,4 +74,9 @@ public class ZentralrufRecordDTO {
    */
   @NonNull final private String tsn;
 
+  /**
+   * Jahr der Erstzulassung
+   */
+  @NonNull final private LocalDate zulassung;
+
 }
