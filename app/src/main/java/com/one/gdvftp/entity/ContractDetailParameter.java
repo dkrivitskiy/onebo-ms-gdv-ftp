@@ -38,8 +38,12 @@ public class ContractDetailParameter implements Display {
   @JoinColumn(name = "contractdetail__r__pkexternalid__c")
   @ToString.Exclude private ContractDetail contractDetail;
 
+  @ManyToOne
+  @JoinColumn(name = "productparameter__r__pkexternalid__c")
+  private ProductParameter productParameter;
+
   @Override
   public String display() {
-    return getParameter().getName()+"="+getValueToShow();
+    return getParameter().getName()+"="+getValueToShow()+"<"+getProductParameter().getName()+">";
   }
 }
