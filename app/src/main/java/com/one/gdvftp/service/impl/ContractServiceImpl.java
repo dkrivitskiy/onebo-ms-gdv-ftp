@@ -117,7 +117,9 @@ public class ContractServiceImpl implements ContractService {
   }
 
   private static Short hsn(List<ContractDetailParameter> params, Contract contract) {
-    return Short.valueOf(parameter("vehicleHSN", params, contract));
+    val hsn = parameter("vehicleHSN", params, contract);
+    if(hsn==null) throw new ContractException("HSN must not be null.", contract);
+    return Short.valueOf(hsn);
   }
 
   private static String tsn(List<ContractDetailParameter> params, Contract contract) {
