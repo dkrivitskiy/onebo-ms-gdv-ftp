@@ -61,9 +61,10 @@ public class ContractServiceImpl implements ContractService {
   }
 
 
-  private static LocalDateTime initialValidFrom(List<ContractDetail> details, Contract contract) {
-    val result = details.stream().map(ContractDetail::getValidFrom).min(LocalDateTime::compareTo);
-    return result.orElseThrow(()->new ContractException("ValidFrom is missing", contract));
+  private static LocalDate initialValidFrom(List<ContractDetail> details, Contract contract) {
+    val dateTime = details.stream().map(ContractDetail::getValidFrom).min(LocalDateTime::compareTo);
+    val date = dateTime.orElseThrow(()->new ContractException("ValidFrom is missing", contract)).toLocalDate();
+    return date;
   }
 
   // Returns the parameters which are not deleted.
