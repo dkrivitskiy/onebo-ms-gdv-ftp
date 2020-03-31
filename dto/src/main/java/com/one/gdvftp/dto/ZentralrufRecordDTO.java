@@ -2,6 +2,7 @@ package com.one.gdvftp.dto;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NonNull;
@@ -51,7 +52,7 @@ public class ZentralrufRecordDTO {
    * fully-comprehensive    -> 02 = VK (Vollkasko)
    * partial-comprehensive  -> 03 = TK (Teilkasko)
    */
-  @NonNull final private String khVkTk;
+  @NonNull final private List<?> khVkTk;
 
   /**
    * Art der Schutzbrief-Deckung
@@ -62,7 +63,7 @@ public class ZentralrufRecordDTO {
    */
   @NonNull final private Boolean schutzbrief;
 
-  @NonNull final private String tkSb;
+  @NonNull final private List tkSb;
 
   /**
    * Herstellernummer

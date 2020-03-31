@@ -4,7 +4,6 @@ import com.one.gdvftp.dto.ZentralrufRecordDTO;
 import com.one.gdvftp.entity.Contract;
 import com.one.gdvftp.entity.ContractDetail;
 import com.one.gdvftp.entity.ContractDetailParameter;
-import com.one.gdvftp.entity.Display;
 import com.one.gdvftp.repository.ContractRepository;
 import com.one.gdvftp.service.ContractException;
 import com.one.gdvftp.service.ContractService;
@@ -54,7 +53,7 @@ public class ContractServiceImpl implements ContractService {
         .favDatBis(contract.getValidTo())
         .khVkTk(productType(parameters, contract))
         .schutzbrief(assistance(parameters, contract))
-        .tkSb(deductible(parameters, contract))
+        .tkSb(deductibles(parameters, contract))
         .hsn(hsn(parameters, contract))
         .tsn(tsn(parameters, contract))
         .zulassung(zulassung(parameters, contract))
@@ -84,11 +83,16 @@ public class ContractServiceImpl implements ContractService {
     return result;
   }
 
-  private static String parameter(String name, List<ContractDetailParameter> params, Contract contract) {
+  private static List<ContractDetailParameter> parameters(String name, List<ContractDetailParameter> params, Contract contract) {
     val list = params.stream().
         filter(p -> name.equals(p.getParameter().getName())).collect(Collectors.toList());
     if(list.isEmpty())
       throw new ContractException("Contract does not have parameter "+name, contract);
+    return list;
+  }
+
+  private static String parameter(String name, List<ContractDetailParameter> params, Contract contract) {
+    val list = parameters(name, params, contract);
     if(list.size()>1)
       throw new ContractException("Contract has more than 1 parameter "+name, contract);
     val result = list.get(0).getValueToShow();
@@ -99,16 +103,17 @@ public class ContractServiceImpl implements ContractService {
     return parameter("NormalizedLicensePlate", params, contract);
   }
 
-  private static String productType(List<ContractDetailParameter> params, Contract contract) {
-    return parameter("productType", params, contract);
+  private static List<ContractDetailParameter> productType(List<ContractDetailParameter> params, Contract contract) {
+    val result = parameters("productType", params, contract);
+    return result;
   }
 
   private static Boolean assistance(List<ContractDetailParameter> params, Contract contract) {
     return Boolean.valueOf(parameter("Assistance", params, contract));
   }
 
-  private static String deductible(List<ContractDetailParameter> params, Contract contract) {
-    return parameter("deductible", params, contract);
+  private static List<ContractDetailParameter> deductibles(List<ContractDetailParameter> params, Contract contract) {
+    return parameters("deductible", params, contract);
   }
 
   private static Short hsn(List<ContractDetailParameter> params, Contract contract) {
