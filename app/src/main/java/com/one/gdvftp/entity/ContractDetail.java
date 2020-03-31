@@ -20,7 +20,7 @@ import lombok.*;
 @NoArgsConstructor
 @Getter
 @With
-public class ContractDetail {
+public class ContractDetail implements Display {
 
   @Id
   @Column(name="pkexternalid__c")
@@ -39,4 +39,8 @@ public class ContractDetail {
   @JoinColumn(name = "contract__r__pkexternalid__c")
   @ToString.Exclude private Contract contract;
 
+  @Override
+  public String display() {
+    return "ContractDetail(pk=" + this.getPk() + ", deleted=" + this.getDeleted() + ", validFrom=" + this.getValidFrom() + ", parameters=" + Display.display(this.getParameters()) + ")";
+  }
 }
