@@ -20,7 +20,7 @@ import lombok.*;
 @NoArgsConstructor
 @Getter
 @With
-public class Contract {
+public class Contract implements Display {
 
   @Id
   @Column(name="pkexternalid__c")
@@ -50,4 +50,11 @@ public class Contract {
   @OneToMany(mappedBy = "contract", fetch = FetchType.EAGER)
   private List<ContractDetail> details;
 
+  @Override
+  public String display() {
+    return "Contract(pk=" + this.getPk() + ", deleted=" + this.getDeleted() + ", name=" + this.getName() + ", symassid=" + this.getSymassid() + ", validTo=" + this.getValidTo() +
+        ", country=" + this.getCountry().display() + ", "
+        + "productGroup=" + this.getProductGroup().display() +
+        ", details=" + Display.display(this.getDetails()) + ")";
+  }
 }
