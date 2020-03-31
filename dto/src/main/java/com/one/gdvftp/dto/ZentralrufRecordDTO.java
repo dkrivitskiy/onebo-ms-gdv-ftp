@@ -1,15 +1,20 @@
 package com.one.gdvftp.dto;
 
+import java.nio.charset.Charset;
+import java.nio.charset.CharsetEncoder;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import lombok.ToString;
+import lombok.val;
 
-@AllArgsConstructor
+@RequiredArgsConstructor
 @ToString
+@Getter
 @Builder
 public class ZentralrufRecordDTO {
 
@@ -39,7 +44,7 @@ public class ZentralrufRecordDTO {
 
   /** Beginn der Haftpflicht- bzw. Kasko-VS
    *  Initial Valid From Date (DDMMYYYY) */
-  @NonNull final private LocalDateTime favDatAb;
+  @NonNull final private LocalDate favDatAb;
 
   /** Stornodatum bzw. leer
    *  Valid To (DDMMYYYY) */
@@ -80,4 +85,56 @@ public class ZentralrufRecordDTO {
    */
   @NonNull final private LocalDate zulassung;
 
+
+  private final CharsetEncoder encoder = Charset.forName("US-ASCII").newEncoder();
+
+  private boolean isASCII(String s) {
+    return encoder.canEncode(s);
+  }
+
+  public String toRecord() {
+    val rec =
+      N(4, getVuNr())+
+      A(20, getVertr())+
+      A(12, getFaKz())+
+      N(3, getWagN());
+    return rec;
+  }
+
+  /**
+   * Returns an alphanumeric value as a String of the specified size
+   * filled with spaces on the right side.
+   * Checks for pure ASCII.
+   */
+  private String A(int size, String s) {
+    if(s==null) return repeat(' ', size);
+    if(!isASCII(s)) throw new RuntimeException("String contains non ASCII characters: \""+s+"\"");
+    val len = s.length();
+    if(len>size) throw new RuntimeException("String is longer than "+size+" characters: \""+s+"\"");
+    if(len==size) return s;
+    // len<size
+      return s+repeat(' ', size-len);
+  }
+
+  /**
+   * Returns a numeric value as a String of the specified size
+   * filled with zeros on the left side.
+   */
+  private String N(int size, Number n) {
+    if(n==null) return repeat('0', size);
+    val v = n.longValue();
+    if(v<0) throw new RuntimeException("Number is negative: \""+n+"\"");
+    val s = ""+v;
+    val len = s.length();
+    if(len>size) throw new RuntimeException("String is longer than "+size+" characters: \""+s+"\"");
+    if(len==size) return s;
+    // len<l
+    return repeat('0', size-len)+s;
+  }
+
+  private String repeat(char c, int l) {
+    val chars = new char[l];
+    Arrays.fill(chars, c);
+    return String.valueOf(chars);
+  }
 }
