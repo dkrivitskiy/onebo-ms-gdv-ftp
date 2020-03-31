@@ -43,29 +43,28 @@ public class ContractServiceImpl implements ContractService {
 
   @Override
   public ZentralrufRecordDTO zentralrufRecordDTO(Contract contract) throws ContractException {
-    val display = contract.toString();  // TODO: maybe implement Contract.display()
     val details = details(contract);
     val parameters = parameters(details);
     return ZentralrufRecordDTO.builder()
         .vuNr(insuranceNumber)
         .vuGstNr(insuranceBranch)
         .vertr(contract.getSymassid())
-        .faKz(normalizedLicensePlate(parameters))
-        .favDatAb(initialValidFrom(details, display))
+        .faKz(normalizedLicensePlate(parameters, contract))
+        .favDatAb(initialValidFrom(details, contract))
         .favDatBis(contract.getValidTo())
-        .khVkTk(productType(parameters))
-        .schutzbrief(assistance(parameters))
-        .tkSb(deductible(parameters))
-        .hsn(hsn(parameters))
-        .tsn(tsn(parameters))
-        .zulassung(zulassung(parameters))
+        .khVkTk(productType(parameters, contract))
+        .schutzbrief(assistance(parameters, contract))
+        .tkSb(deductible(parameters, contract))
+        .hsn(hsn(parameters, contract))
+        .tsn(tsn(parameters, contract))
+        .zulassung(zulassung(parameters, contract))
         .build();
   }
 
 
-  private static LocalDateTime initialValidFrom(List<ContractDetail> details, String display) {
+  private static LocalDateTime initialValidFrom(List<ContractDetail> details, Contract contract) {
     val result = details.stream().map(ContractDetail::getValidFrom).min(LocalDateTime::compareTo);
-    return result.orElseThrow(()->new ContractException("ValidFrom is missing", display));
+    return result.orElseThrow(()->new ContractException("ValidFrom is missing", contract));
   }
 
   // Returns the parameters which are not deleted.
@@ -79,55 +78,49 @@ public class ContractServiceImpl implements ContractService {
   // The contract must not be deleted.
   // Return all ContractDetails which are not deleted.
   private static List<ContractDetail> details(Contract contract) throws ContractException {
-    if(contract.getDeleted()) throw new ContractException("Contract is deleted.", contract.toString());
+    if(contract.getDeleted()) throw new ContractException("Contract is deleted.", contract);
     val result = contract.getDetails().stream().
         filter(d -> !d.getDeleted()).collect(Collectors.toList());
     return result;
   }
 
-  private static String parameter(String name, List<ContractDetailParameter> params) {
+  private static String parameter(String name, List<ContractDetailParameter> params, Contract contract) {
     val list = params.stream().
         filter(p -> name.equals(p.getParameter().getName())).collect(Collectors.toList());
-    if(list.isEmpty()) throw new ContractException("Contract does not have parameter "+name, display(params)); // TODO: toString() for List
-    if(list.size()>1) throw new ContractException("Contract has more than 1 parameter "+name, display(params)); // TODO: toString() for List
+    if(list.isEmpty())
+      throw new ContractException("Contract does not have parameter "+name, contract);
+    if(list.size()>1)
+      throw new ContractException("Contract has more than 1 parameter "+name, contract);
     val result = list.get(0).getValueToShow();
     return result;
   }
 
-  private static <T extends Display> Display display(List<T> params) {
-    return () -> {
-      val displays = params.stream().map(Display::display).collect(Collectors.toList());
-      val s = String.join(", ", displays);
-      return "["+s+"]";
-    };
+  private static String normalizedLicensePlate(List<ContractDetailParameter> params, Contract contract) {
+    return parameter("NormalizedLicensePlate", params, contract);
   }
 
-  private static String normalizedLicensePlate(List<ContractDetailParameter> params) {
-    return parameter("NormalizedLicensePlate", params);
+  private static String productType(List<ContractDetailParameter> params, Contract contract) {
+    return parameter("productType", params, contract);
   }
 
-  private static String productType(List<ContractDetailParameter> params) {
-    return parameter("productType", params);
+  private static Boolean assistance(List<ContractDetailParameter> params, Contract contract) {
+    return Boolean.valueOf(parameter("Assistance", params, contract));
   }
 
-  private static Boolean assistance(List<ContractDetailParameter> params) {
-    return Boolean.valueOf(parameter("Assistance", params));
+  private static String deductible(List<ContractDetailParameter> params, Contract contract) {
+    return parameter("deductible", params, contract);
   }
 
-  private static String deductible(List<ContractDetailParameter> params) {
-    return parameter("deductible", params);
+  private static Short hsn(List<ContractDetailParameter> params, Contract contract) {
+    return Short.valueOf(parameter("vehicleHSN", params, contract));
   }
 
-  private static Short hsn(List<ContractDetailParameter> params) {
-    return Short.valueOf(parameter("vehicleHSN", params));
+  private static String tsn(List<ContractDetailParameter> params, Contract contract) {
+    return parameter("vehicleTSN", params, contract);
   }
 
-  private static String tsn(List<ContractDetailParameter> params) {
-    return parameter("vehicleTSN", params);
-  }
-
-  private static LocalDate zulassung(List<ContractDetailParameter> params) {
-    val milliseconds = Long.valueOf(parameter("firstRegistrationDateInsured", params));
+  private static LocalDate zulassung(List<ContractDetailParameter> params, Contract contract) {
+    val milliseconds = Long.valueOf(parameter("firstRegistrationDateInsured", params, contract));
     val localDateTime = LocalDateTime.ofInstant(
         Instant.ofEpochMilli(milliseconds), ZoneId.of("CET"));  // TODO: ensure that this is the correct timezone
     val result = localDateTime.toLocalDate();
