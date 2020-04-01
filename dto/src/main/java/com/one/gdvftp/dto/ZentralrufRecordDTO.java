@@ -98,27 +98,29 @@ public class ZentralrufRecordDTO {
 
   public String toRecord() {
     val rec =
-      N( 4, getVuNr())+
-      A(20, getVertr())+
-      A(12, getFaKz())+
-      N( 3, getWagN())+
-      N( 8, date(getFavDatAb()))+
-      N( 8, date(getFavDatBis()))+
-      N( 3, getVuGstNr())+
-      N( 8, getAgent())+
-      N( 2, getDeckungsArt())+
-      N( 1, serviceDeckung(isSchutzbrief()))+
-      N( 8, 0)+ // Servicedeckung TODO: implement
-      N( 4, getHsn())+
-      A( 3, getTsn())+
-      N( 4, year(getZulassung()));
+        N( 4, getVuNr())
+      + A(20, getVertr())
+      + A(12, getFaKz())
+      + N( 3, getWagN())
+      + N( 8, date(getFavDatAb()))
+      + N( 8, date(getFavDatBis()))
+      + N( 3, getVuGstNr())
+      + N( 8, getAgent())
+      + N( 2, getDeckungsArt())
+      + N( 1, serviceDeckung(isSchutzbrief()))
+      + N( 8, 0) // Servicedeckung TODO: implement
+      + N( 4, getHsn())
+      + A( 3, getTsn())
+      + N( 4, year(getZulassung()))
+      ;
     checkAscii(rec);
     checkLength(rec, SIZE);
     return rec;
   }
 
   public static String header(int vuNr, int vuGstNr) {
-    val h = A( 12, "KONTROLLE BV")
+    val h =
+          A( 12, "KONTROLLE BV")
         + A( 4, "8333") // Ziel-VU
         + A( 3, "AZA")  // Ziel-Sachgebiet
         + A( 1, " ")    // K or H or space
@@ -126,6 +128,26 @@ public class ZentralrufRecordDTO {
         + N( 3, vuGstNr)   // Absender-GS; documentation says: type A
         + A( 3, "")     // Information zum Sachgebiet
         + A(SIZE-12-4-3-1-4-3-3, "")  // filler spaces
+        ;
+    checkAscii(h);
+    checkLength(h, SIZE);
+    return h;
+  }
+
+  public static String footer(
+      LocalDate creationDate, int deliveryNumber, int recordCount,
+      LocalDate previousDeliveryDate, Integer previousDeliveryNumber
+  ) {
+    val h =
+          A( 12, "KONTROLLE BN")
+        + A( 4, "8333") // Ziel-VU
+        + A( 8, isoDate(creationDate))
+        + N( 4, deliveryNumber) // documentation says: type A
+        + N( 8, recordCount)    // documentation says: type A
+        + A( 8, isoDate(previousDeliveryDate))
+        + N( 4, previousDeliveryNumber) // documentation says: type A
+        + A( 3, "")     // Information zum Sachgebiet
+        + A(SIZE-12-4-8-4-8-8-4-3, "")  // filler spaces
         ;
     checkAscii(h);
     checkLength(h, SIZE);
@@ -187,6 +209,17 @@ public class ZentralrufRecordDTO {
     if(date==null) return 0;
     val s = date.format(dateFormatter);
     val result = Integer.valueOf(s);
+    return result;
+  }
+
+  // is threadsafe
+  private static final DateTimeFormatter isoDateFormatter = DateTimeFormatter.ofPattern("yyyyMMdd");
+  /**
+   * returns a date as a String with format yyyyMMdd
+   */
+  private static String isoDate(LocalDate date) {
+    if(date==null) return "";
+    val result = date.format(isoDateFormatter);
     return result;
   }
 
