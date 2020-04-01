@@ -101,7 +101,7 @@ public class ZentralrufRecordDTO {
       A(12, getFaKz())+
       N( 3, getWagN())+
       N( 8, date(getFavDatAb()))+
-      N( 8, date(getFavDatAb()))+
+      N( 8, date(getFavDatBis()))+
       N( 3, getVuGstNr())+
       N( 8, getAgent())+
       N( 2, getDeckungsArt())+
