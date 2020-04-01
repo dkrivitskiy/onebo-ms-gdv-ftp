@@ -52,9 +52,10 @@ public class ContractServiceImpl implements ContractService {
     Integer previousDeliveryNumber = null;  // TODO: implement
     int deliveryNumber = previousDeliveryNumber==null ? 1 : previousDeliveryNumber+1;
     val now = LocalDate.now(clock);
-    try (val out = new FileWriter("test2.txt")) {
-      out.write(ZentralrufRecordDTO.header(insuranceNumber, insuranceBranch));
-      out.write("\n");
+    val filename = ZentralrufRecordDTO.filename(insuranceNumber, insuranceBranch, now, deliveryNumber);
+    try (val out = new FileWriter(filename)) {
+      val header = ZentralrufRecordDTO.header(insuranceNumber, insuranceBranch);
+      out.write(header); out.write("\n");
       val contracts = repo.findContractsForZentralruf(now, 1000);
       for (Contract c : contracts) {
         try {
@@ -71,10 +72,10 @@ public class ContractServiceImpl implements ContractService {
           e.printStackTrace(); // TODO: logging
         }
       }
-      out.write(ZentralrufRecordDTO.footer(
+      val footer = ZentralrufRecordDTO.footer(
           now, deliveryNumber, writtenCount,
-          previousDeliveryDate, previousDeliveryNumber));
-      out.write("\n");
+          previousDeliveryDate, previousDeliveryNumber);
+      out.write(footer); out.write("\n");
     } catch(Throwable e) {
       e.printStackTrace();  // TODO: logging
     }

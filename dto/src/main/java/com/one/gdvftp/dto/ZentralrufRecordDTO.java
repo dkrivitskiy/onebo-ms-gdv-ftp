@@ -89,13 +89,6 @@ public class ZentralrufRecordDTO {
   @NonNull final private LocalDate zulassung;
 
 
-  // CharsetEncoder is not threadsafe!
-  private static final CharsetEncoder encoder = Charset.forName("US-ASCII").newEncoder();
-
-  private static synchronized boolean isASCII(String s) { // synchronized because encoder is not threadsafe
-    return encoder.canEncode(s);
-  }
-
   public String toRecord() {
     val rec =
         N( 4, getVuNr())
@@ -116,6 +109,23 @@ public class ZentralrufRecordDTO {
     checkAscii(rec);
     checkLength(rec, SIZE);
     return rec;
+  }
+
+  public static String filename(int vuNr, int vuGstNr, LocalDate creationDate, int deliveryNumber) {
+    val h =
+        A( 3, "dat")
+      + A( 1, ".")
+      + N( 4, vuNr)
+      + N( 3, vuGstNr)
+      + A( 1, ".")
+      + A( 3, "aza")     // Sachgebiet
+      + A( 1, ".")
+      + N( 4, year(creationDate))
+      + N( 3, deliveryNumber)
+      ;
+    checkAscii(h);
+    checkLength(h, 23);
+    return h;
   }
 
   public static String header(int vuNr, int vuGstNr) {
@@ -152,6 +162,13 @@ public class ZentralrufRecordDTO {
     checkAscii(h);
     checkLength(h, SIZE);
     return h;
+  }
+
+  // CharsetEncoder is not threadsafe!
+  private static final CharsetEncoder encoder = Charset.forName("US-ASCII").newEncoder();
+
+  private static synchronized boolean isASCII(String s) { // synchronized because encoder is not threadsafe
+    return encoder.canEncode(s);
   }
 
   /**
