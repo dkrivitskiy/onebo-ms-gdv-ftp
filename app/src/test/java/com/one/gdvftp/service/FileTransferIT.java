@@ -15,8 +15,8 @@ public class FileTransferIT {
   private FileTransfer transfer;
 
   @Test
-  public void foo() {
-    transfer.upload();
+  public void testList() {
+    transfer.list();
   }
 
 }

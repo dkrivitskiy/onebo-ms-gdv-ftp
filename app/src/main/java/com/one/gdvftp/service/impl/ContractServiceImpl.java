@@ -7,7 +7,10 @@ import com.one.gdvftp.entity.ContractDetailParameter;
 import com.one.gdvftp.repository.ContractRepository;
 import com.one.gdvftp.service.ContractException;
 import com.one.gdvftp.service.ContractService;
+import com.one.gdvftp.service.FileTransfer;
+import java.io.File;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -37,9 +40,9 @@ public class ContractServiceImpl implements ContractService {
   @Value("${message.insurance.insurance-branch}")  // TODO: can this be a constructor parameter?
   private Short insuranceBranch;
 
-  private final @NonNull EntityManager em;
-
   private final @NonNull ContractRepository repo;
+
+  private final @NonNull FileTransfer transfer;
 
   Clock clock = Clock.system(ZoneId.of("CET")); // can be changed for tests
 
@@ -53,35 +56,50 @@ public class ContractServiceImpl implements ContractService {
     int deliveryNumber = previousDeliveryNumber==null ? 1 : previousDeliveryNumber+1;
     val now = LocalDate.now(clock);
     val filename = ZentralrufRecordDTO.filename(insuranceNumber, insuranceBranch, now, deliveryNumber);
-    try (val out = new FileWriter(filename)) {
-      val header = ZentralrufRecordDTO.header(insuranceNumber, insuranceBranch);
-      out.write(header); out.write("\n");
-      val contracts = repo.findContractsForZentralruf(now, 1000);
-      for (Contract c : contracts) {
-        try {
-          val dto = zentralrufRecordDTO(c);
-          val record = dto.toRecord();
-          out.write(record);
-          out.write("\n");
-          writtenCount++;
-        } catch (ContractException e) {
-          errorCount++;
-          System.err.println(e.getMessage()); // TODO: logging
-        } catch (Exception e) {
-          errorCount++;
-          e.printStackTrace(); // TODO: logging
+    try {
+      val file = File.createTempFile(filename, ".tmp");
+
+      // Writing to tempfile
+      try (val out = new FileWriter(file)) {
+        val header = ZentralrufRecordDTO.header(insuranceNumber, insuranceBranch);
+        out.write(header); out.write("\n");
+
+        val contracts = repo.findContractsForZentralruf(now, 1000);
+        for (Contract c : contracts) {
+          try {
+            val dto = zentralrufRecordDTO(c);
+            val record = dto.toRecord();
+            out.write(record); out.write("\n");
+            writtenCount++;
+          } catch (ContractException e) {
+            errorCount++;
+            System.err.println(e.getMessage()); // TODO: logging
+          } catch (Exception e) {
+            errorCount++;
+            e.printStackTrace(); // TODO: logging
+          }
         }
+        System.out.println("error count: "+errorCount); // TODO: logging
+
+        val footer = ZentralrufRecordDTO.footer(
+            now, deliveryNumber, writtenCount,
+            previousDeliveryDate, previousDeliveryNumber);
+        out.write(footer); out.write("\n");
+      } catch (Throwable e) {
+        e.printStackTrace();  // TODO: logging
       }
-      val footer = ZentralrufRecordDTO.footer(
-          now, deliveryNumber, writtenCount,
-          previousDeliveryDate, previousDeliveryNumber);
-      out.write(footer); out.write("\n");
-    } catch(Throwable e) {
-      e.printStackTrace();  // TODO: logging
+
+      // Reading from tempfile
+      try {
+        transfer.upload(filename, file);
+        System.out.println("records written: "+writtenCount); // TODO: logging
+        return writtenCount;
+      } finally {
+        file.delete();
+      }
+    } catch (IOException e) {
+        throw new RuntimeException(e);
     }
-    System.out.println("error count: "+errorCount); // TODO: logging
-    System.out.println("records written: "+writtenCount); // TODO: logging
-    return writtenCount;
   }
 
   @Override
