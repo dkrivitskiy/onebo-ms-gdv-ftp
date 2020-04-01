@@ -74,3 +74,9 @@ message:
   insurance:
     insurance-number: 9496
     insurance-branch: 1
+
+amazon:
+  s3:
+    accesskey: foo
+    secret: bar
+    bucket: onebo-gdv-ftp-dev/test

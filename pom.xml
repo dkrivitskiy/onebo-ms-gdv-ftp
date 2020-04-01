@@ -31,6 +31,7 @@
         <logbook.version>1.13.0</logbook.version>
         <logstash-logback-encoder.version>6.2</logstash-logback-encoder.version>
         <postgresql.version>9.4.1208</postgresql.version>
+        <aws-java-sdk.version>1.11.163</aws-java-sdk.version>
     </properties>
 
     <dependencyManagement>
