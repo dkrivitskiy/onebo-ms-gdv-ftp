@@ -105,7 +105,9 @@ public class ContractServiceImpl implements ContractService {
   }
 
   private static String normalizedLicensePlate(List<ContractDetailParameter> params, Contract contract) {
-    return parameter("NormalizedLicensePlate", params, contract);
+    val plate = parameter("NormalizedLicensePlate", params, contract);
+    val result = plate.replaceAll("_", " ");
+    return result;
   }
 
   private static List<ContractDetailParameter> productType(List<ContractDetailParameter> params, Contract contract) {
