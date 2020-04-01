@@ -47,4 +47,11 @@ public class ContractServiceIT {
     // TODO: remove later
     records.forEach(System.out::println);
   }
+
+  @Test
+  public void testWriteZentralrufRecords() {
+    int count = service.writeZentralrufRecords();
+    assertThat(count).isPositive();
+  }
+
 }

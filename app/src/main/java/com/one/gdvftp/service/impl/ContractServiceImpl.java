@@ -7,6 +7,7 @@ import com.one.gdvftp.entity.ContractDetailParameter;
 import com.one.gdvftp.repository.ContractRepository;
 import com.one.gdvftp.service.ContractException;
 import com.one.gdvftp.service.ContractService;
+import java.io.FileWriter;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -41,7 +42,37 @@ public class ContractServiceImpl implements ContractService {
 
 
   @Override
-  public ZentralrufRecordDTO zentralrufRecordDTO(Contract contract) throws ContractException {
+  public int writeZentralrufRecords() {
+    int writtenCount = 0;
+    int errorCount = 0;
+    try (val out = new FileWriter("test.txt")) {
+      val now = LocalDate.of(1970, 1, 1);
+      val contracts = repo.findContractsForZentralruf(now, 1000);
+      for (Contract c : contracts) {
+        try {
+          val dto = zentralrufRecordDTO(c);
+          val record = dto.toRecord();
+          out.write(record);
+          out.write("\n");
+          writtenCount++;
+        } catch (ContractException e) {
+          errorCount++;
+          System.err.println(e.getMessage()); // TODO: logging
+        } catch (Exception e) {
+          errorCount++;
+          e.printStackTrace(); // TODO: logging
+        }
+      }
+    } catch(Throwable e) {
+      e.printStackTrace();  // TODO: logging
+    }
+    System.out.println("error count: "+errorCount); // TODO: logging
+    System.out.println("records written: "+writtenCount); // TODO: logging
+    return writtenCount;
+  }
+
+  @Override
+  public ZentralrufRecordDTO zentralrufRecordDTO(Contract contract) {
     val details = details(contract);
     val parameters = parameters(details);
     return ZentralrufRecordDTO.builder()
