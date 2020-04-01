@@ -51,13 +51,17 @@ public class ContractServiceImpl implements ContractService {
         .faKz(normalizedLicensePlate(parameters, contract))
         .favDatAb(initialValidFrom(details, contract))
         .favDatBis(contract.getValidTo())
-        .khVkTk(productType(parameters, contract))
+        .deckungsArt(deckungsArt(productType(parameters, contract)))
         .schutzbrief(assistance(parameters, contract))
         .tkSb(deductibles(parameters, contract))
         .hsn(hsn(parameters, contract))
         .tsn(tsn(parameters, contract))
         .zulassung(zulassung(parameters, contract))
         .build();
+  }
+
+  private byte deckungsArt(List<ContractDetailParameter> productType) {
+    return 3; // TODO: implement
   }
 
 
