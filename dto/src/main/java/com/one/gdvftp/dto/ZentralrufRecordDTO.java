@@ -3,6 +3,7 @@ package com.one.gdvftp.dto;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
 import lombok.Builder;
@@ -20,11 +21,7 @@ public class ZentralrufRecordDTO {
 
   /** Vierstellige Nummer des VU
    *  ONE's insurance number 9496 */
-  @NonNull final private Short vuNr;
-
-  /** Nummer der VU-Geschäftsstelle
-   *  ONE's insurance number 001 */
-  @NonNull final private Short vuGstNr;
+  final private int vuNr;
 
   /** Vertrag
    *  Contract Number */
@@ -36,11 +33,7 @@ public class ZentralrufRecordDTO {
 
   /** Neben-Wagniskennziffer für Festlegung der Art des Kennzeichens
    *  not applicable */
-  @NonNull final private Short wagN=0;
-
-  /** Nummer des/der zuständigen VU-Agenten / VU-Außenstelle / Sachbearbeiters
-   *  not applicable */
-  @NonNull final private Short agent=0;
+  final private int wagN=0;
 
   /** Beginn der Haftpflicht- bzw. Kasko-VS
    *  Initial Valid From Date (DDMMYYYY) */
@@ -50,6 +43,14 @@ public class ZentralrufRecordDTO {
    *  Valid To (DDMMYYYY) */
   final private LocalDate favDatBis;
 
+  /** Nummer der VU-Geschäftsstelle
+   *  ONE's insurance number 001 */
+  final private int vuGstNr;
+
+  /** Nummer des/der zuständigen VU-Agenten / VU-Außenstelle / Sachbearbeiters
+   *  not applicable */
+  final private int agent=0;
+
   /**
    * KH/VK/TK Art der Deckung
    *
@@ -57,7 +58,7 @@ public class ZentralrufRecordDTO {
    * fully-comprehensive    -> 02 = VK (Vollkasko)
    * partial-comprehensive  -> 03 = TK (Teilkasko)
    */
-  @NonNull final private List<?> khVkTk;
+  final private int deckungsArt;
 
   /**
    * Art der Schutzbrief-Deckung
@@ -66,14 +67,14 @@ public class ZentralrufRecordDTO {
    * true   ->  1 = fahrzeugbezogener Schutzbrief
    *            2 = Pannenhilfe
    */
-  @NonNull final private Boolean schutzbrief;
+  final private boolean schutzbrief;
 
   @NonNull final private List tkSb;
 
   /**
    * Herstellernummer
    */
-  @NonNull final private Short hsn;
+  final private int hsn;
 
   /**
    * Typschlüsselnummer
@@ -86,6 +87,7 @@ public class ZentralrufRecordDTO {
   @NonNull final private LocalDate zulassung;
 
 
+  @ToString.Exclude
   private final CharsetEncoder encoder = Charset.forName("US-ASCII").newEncoder();
 
   private boolean isASCII(String s) {
@@ -94,10 +96,22 @@ public class ZentralrufRecordDTO {
 
   public String toRecord() {
     val rec =
-      N(4, getVuNr())+
+      N( 4, getVuNr())+
       A(20, getVertr())+
       A(12, getFaKz())+
-      N(3, getWagN());
+      N( 3, getWagN())+
+      N( 8, date(getFavDatAb()))+
+      N( 8, date(getFavDatAb()))+
+      N( 3, getVuGstNr())+
+      N( 8, getAgent())+
+      N( 2, getDeckungsArt())+
+      N( 1, serviceDeckung(isSchutzbrief()))+
+      N( 8, 0)+ // Servicedeckung TODO: implement
+      N( 4, getHsn())+
+      A( 3, getTsn())+
+      N( 4, year(getZulassung()));
+    checkAscii(rec);
+    checkLength(rec, 88);
     return rec;
   }
 
@@ -108,12 +122,21 @@ public class ZentralrufRecordDTO {
    */
   private String A(int size, String s) {
     if(s==null) return repeat(' ', size);
-    if(!isASCII(s)) throw new RuntimeException("String contains non ASCII characters: \""+s+"\"");
-    val len = s.length();
-    if(len>size) throw new RuntimeException("String is longer than "+size+" characters: \""+s+"\"");
+    checkAscii(s);
+    val len = checkLength(s, size);
     if(len==size) return s;
     // len<size
       return s+repeat(' ', size-len);
+  }
+
+  private int checkLength(String s, int size) {
+    val len = s.length();
+    if(len>size) throw new RuntimeException("String is longer than "+size+" characters ("+len+"): \""+s+"\"");
+    return len;
+  }
+
+  private void checkAscii(String s) {
+    if(!isASCII(s)) throw new RuntimeException("String contains non ASCII characters: \""+s+"\"");
   }
 
   /**
@@ -137,4 +160,32 @@ public class ZentralrufRecordDTO {
     Arrays.fill(chars, c);
     return String.valueOf(chars);
   }
+
+  @ToString.Exclude
+  private final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("ddMMyyyy");
+  /**
+   * returns a date as an int with format ddMMyyyy
+   */
+  private int date(LocalDate date) {
+    val s = date.format(dateFormatter);
+    val result = Integer.valueOf(s);
+    return result;
+  }
+
+  @ToString.Exclude
+  private final DateTimeFormatter yearFormatter = DateTimeFormatter.ofPattern("yyyy");
+  /**
+   * returns the year
+   */
+  private int year(LocalDate date) {
+    val s = date.format(yearFormatter);
+    val result = Integer.valueOf(s);
+    return result;
+  }
+
+  private int serviceDeckung(boolean schutzbrief) {
+    return schutzbrief ? 1 : 0;
+  }
+
+
 }
