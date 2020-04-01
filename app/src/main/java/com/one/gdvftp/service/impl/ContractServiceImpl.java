@@ -45,9 +45,11 @@ public class ContractServiceImpl implements ContractService {
   public int writeZentralrufRecords() {
     int writtenCount = 0;
     int errorCount = 0;
-    try (val out = new FileWriter("test.txt")) {
+    try (val out = new FileWriter("test2.txt")) {
       val now = LocalDate.of(1970, 1, 1);
       val contracts = repo.findContractsForZentralruf(now, 1000);
+      out.write(ZentralrufRecordDTO.header(insuranceNumber, insuranceBranch));
+      out.write("\n");
       for (Contract c : contracts) {
         try {
           val dto = zentralrufRecordDTO(c);

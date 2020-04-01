@@ -19,6 +19,8 @@ import lombok.val;
 @Builder
 public class ZentralrufRecordDTO {
 
+  static final int SIZE = 88;
+
   /** Vierstellige Nummer des VU
    *  ONE's insurance number 9496 */
   final private int vuNr;
@@ -87,10 +89,10 @@ public class ZentralrufRecordDTO {
   @NonNull final private LocalDate zulassung;
 
 
-  @ToString.Exclude
-  private final CharsetEncoder encoder = Charset.forName("US-ASCII").newEncoder();
+  // CharsetEncoder is not threadsafe!
+  private static final CharsetEncoder encoder = Charset.forName("US-ASCII").newEncoder();
 
-  private boolean isASCII(String s) {
+  private static synchronized boolean isASCII(String s) { // synchronized because encoder is not threadsafe
     return encoder.canEncode(s);
   }
 
@@ -111,8 +113,23 @@ public class ZentralrufRecordDTO {
       A( 3, getTsn())+
       N( 4, year(getZulassung()));
     checkAscii(rec);
-    checkLength(rec, 88);
+    checkLength(rec, SIZE);
     return rec;
+  }
+
+  public static String header(int vuNr, int vuGstNr) {
+    val h = A( 12, "KONTROLLE BV")
+        + A( 4, "8333") // Ziel-VU
+        + A( 3, "AZA")  // Ziel-Sachgebiet
+        + A( 1, " ")    // K or H or space
+        + N( 4, vuNr)      // Absender-VU; documentation says: type A
+        + N( 3, vuGstNr)   // Absender-GS; documentation says: type A
+        + A( 3, "")     // Information zum Sachgebiet
+        + A(SIZE-12-4-3-1-4-3-3, "")  // filler spaces
+        ;
+    checkAscii(h);
+    checkLength(h, SIZE);
+    return h;
   }
 
   /**
@@ -120,7 +137,7 @@ public class ZentralrufRecordDTO {
    * filled with spaces on the right side.
    * Checks for pure ASCII.
    */
-  private String A(int size, String s) {
+  private static String A(int size, String s) {
     if(s==null) return repeat(' ', size);
     checkAscii(s);
     val len = checkLength(s, size);
@@ -129,13 +146,13 @@ public class ZentralrufRecordDTO {
       return s+repeat(' ', size-len);
   }
 
-  private int checkLength(String s, int size) {
+  private static int checkLength(String s, int size) {
     val len = s.length();
     if(len>size) throw new RuntimeException("String is longer than "+size+" characters ("+len+"): \""+s+"\"");
     return len;
   }
 
-  private void checkAscii(String s) {
+  private static void checkAscii(String s) {
     if(!isASCII(s)) throw new RuntimeException("String contains non ASCII characters: \""+s+"\"");
   }
 
@@ -143,7 +160,7 @@ public class ZentralrufRecordDTO {
    * Returns a numeric value as a String of the specified size
    * filled with zeros on the left side.
    */
-  private String N(int size, Number n) {
+  private static String N(int size, Number n) {
     if(n==null) return repeat('0', size);
     val v = n.longValue();
     if(v<0) throw new RuntimeException("Number is negative: \""+n+"\"");
@@ -155,38 +172,37 @@ public class ZentralrufRecordDTO {
     return repeat('0', size-len)+s;
   }
 
-  private String repeat(char c, int l) {
+  private static String repeat(char c, int l) {
     val chars = new char[l];
     Arrays.fill(chars, c);
     return String.valueOf(chars);
   }
 
-  @ToString.Exclude
-  private final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("ddMMyyyy");
+  // is threadsafe
+  private static final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("ddMMyyyy");
   /**
    * returns a date as an int with format ddMMyyyy
    */
-  private int date(LocalDate date) {
+  private static int date(LocalDate date) {
     if(date==null) return 0;
     val s = date.format(dateFormatter);
     val result = Integer.valueOf(s);
     return result;
   }
 
-  @ToString.Exclude
-  private final DateTimeFormatter yearFormatter = DateTimeFormatter.ofPattern("yyyy");
+  // is threadsafe
+  private static final DateTimeFormatter yearFormatter = DateTimeFormatter.ofPattern("yyyy");
   /**
    * returns the year
    */
-  private int year(LocalDate date) {
+  private static int year(LocalDate date) {
     val s = date.format(yearFormatter);
     val result = Integer.valueOf(s);
     return result;
   }
 
-  private int serviceDeckung(boolean schutzbrief) {
+  private static int serviceDeckung(boolean schutzbrief) {
     return schutzbrief ? 1 : 0;
   }
-
 
 }
