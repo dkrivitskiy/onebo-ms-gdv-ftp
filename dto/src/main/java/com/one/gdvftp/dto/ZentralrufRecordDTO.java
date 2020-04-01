@@ -167,6 +167,7 @@ public class ZentralrufRecordDTO {
    * returns a date as an int with format ddMMyyyy
    */
   private int date(LocalDate date) {
+    if(date==null) return 0;
     val s = date.format(dateFormatter);
     val result = Integer.valueOf(s);
     return result;
