@@ -1,5 +1,10 @@
 package com.one.gdvftp.service.impl;
 
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.mapping;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
+
 import com.one.gdvftp.dto.ZentralrufRecordDTO;
 import com.one.gdvftp.entity.Contract;
 import com.one.gdvftp.entity.ContractDetail;
@@ -17,16 +22,17 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-
-import javax.persistence.EntityManager;
 
 
 @Service
@@ -105,25 +111,40 @@ public class ContractServiceImpl implements ContractService {
   @Override
   public ZentralrufRecordDTO zentralrufRecordDTO(Contract contract) {
     val details = details(contract);
-    val parameters = parameters(details);
-    return ZentralrufRecordDTO.builder()
+    val activeDetail = activeDetail(details(contract));
+    val parameters = parameters(activeDetail);
+    val record = ZentralrufRecordDTO.builder()
+        .deckungsArt(deckungsArt(productType(parameters, contract)))
         .vuNr(insuranceNumber)
         .vuGstNr(insuranceBranch)
         .vertr(contract.getSymassid())
         .faKz(normalizedLicensePlate(parameters, contract))
         .favDatAb(initialValidFrom(details, contract))
         .favDatBis(contract.getValidTo())
-        .deckungsArt(deckungsArt(productType(parameters, contract)))
         .schutzbrief(assistance(parameters, contract))
-        .tkSb(deductibles(parameters, contract))
+        .sb(deductibles(parameters, contract))
         .hsn(hsn(parameters, contract))
         .tsn(tsn(parameters, contract))
         .zulassung(zulassung(parameters, contract))
         .build();
+    return record;
   }
 
-  private byte deckungsArt(List<ContractDetailParameter> productType) {
-    return 3; // TODO: implement
+  private String deckungsArt(List<ContractDetailParameter> productType) {
+    // TODO: improve
+    val list = productType.stream()
+        .map(cdp -> cdp.getProductParameter().getBindingFieldToSubmit()).collect(Collectors.toList());
+    String art = list.stream().map(s -> s.substring(0,2)).collect(Collectors.joining());
+    if(art.contains("KH"))
+      if(art.contains("TK"))
+        if(art.contains("VK"))
+          return("[VK]");
+        else
+          return("[TK]");
+      else
+        return("[KH]");
+    else
+      return art;
   }
 
 
@@ -134,10 +155,8 @@ public class ContractServiceImpl implements ContractService {
   }
 
   // Returns the parameters which are not deleted.
-  private static List<ContractDetailParameter> parameters(List<ContractDetail> details) {
-    val result = details.stream().flatMap(
-        d -> d.getParameters().stream().filter(p -> !p.getDeleted())
-    ).collect(Collectors.toList());
+  private static List<ContractDetailParameter> parameters(ContractDetail detail) {
+    val result = detail.getParameters().stream().filter(p -> !p.getDeleted()).collect(Collectors.toList());
     return result;
   }
 
@@ -150,6 +169,19 @@ public class ContractServiceImpl implements ContractService {
     return result;
   }
 
+  // There must be one active detail.
+  private static ContractDetail activeDetail(List<ContractDetail> details) {
+    val contract = details.get(0).getContract(); // details must not be empty nor null
+    val size = details.size();
+    val list = details.stream().
+        filter(d -> "ACTIVE".equals(d.getStatus())).collect(Collectors.toList());
+    if(list.isEmpty())
+      throw new ContractException("Contract does not have active details.", contract);
+    if(list.size()>1)
+      throw new ContractException("Contract has more than 1 active detail.", contract);
+    return list.get(0);
+  }
+
   private static List<ContractDetailParameter> parameters(String name, List<ContractDetailParameter> params, Contract contract) {
     val list = params.stream().
         filter(p -> name.equals(p.getParameter().getName())).collect(Collectors.toList());
@@ -160,8 +192,9 @@ public class ContractServiceImpl implements ContractService {
 
   private static String parameter(String name, List<ContractDetailParameter> params, Contract contract) {
     val list = parameters(name, params, contract);
-    if(list.size()>1)
-      throw new ContractException("Contract has more than 1 parameter "+name, contract);
+// TODO: fix this problem for zulassung
+//    if(list.size()>1)
+//      throw new ContractException("Contract has more than 1 parameter "+name, contract);
     val result = list.get(0).getValueToShow();
     return result;
   }
@@ -181,8 +214,23 @@ public class ContractServiceImpl implements ContractService {
     return Boolean.valueOf(parameter("Assistance", params, contract));
   }
 
-  private static List<ContractDetailParameter> deductibles(List<ContractDetailParameter> params, Contract contract) {
-    return parameters("deductible", params, contract);
+  // calculate the deductibles (for KH, TK, VK)
+  private static Map<String, Integer> deductibles(List<ContractDetailParameter> params, Contract contract) {
+    val deductibles = parameters("deductible", params, contract);
+    val size = deductibles.size();
+    val map = deductibles.stream().collect(
+        groupingBy(p -> StringUtils.left(p.getProductParameter().getBindingFieldToSubmit(), 2),
+        mapping(p -> p.getValueToShow(), toList())
+    ));
+    val display = StringUtils.join(map);
+    // sanity check
+    map.values().forEach(list -> {
+      if(list.isEmpty()) throw new ContractException("Missing deductible: "+display, contract);
+      if(list.size()>1)  throw new ContractException("Multiple deductibles: "+display, contract);
+    });
+    val result = map.entrySet().stream().collect(
+        toMap(Entry::getKey, e -> Integer.valueOf(e.getValue().get(0))));
+    return result;
   }
 
   private static Short hsn(List<ContractDetailParameter> params, Contract contract) {

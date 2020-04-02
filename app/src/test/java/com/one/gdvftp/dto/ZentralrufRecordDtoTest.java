@@ -15,7 +15,7 @@ public class ZentralrufRecordDtoTest {
     val date = LocalDate.of(2021,12,30);
     val dto = new ZentralrufRecordDTO(
         123,"vertr1234567890","fakz12345678", date.minusDays(10), date, 12,
-        3, true, Collections.emptyList(), 4321, "tsn", date.minusDays(91));
+        "KH", true, Collections.EMPTY_MAP, 4321, "tsn", date.minusDays(91));
     val rec = dto.toRecord();
     assertThat(rec).isEqualTo(
         "0123"+"vertr1234567890     "+"fakz12345678"+"000"+"20122021"+"30122021"+"012"+

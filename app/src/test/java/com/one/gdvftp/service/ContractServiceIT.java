@@ -46,6 +46,7 @@ public class ContractServiceIT {
 
     // TODO: remove later
     records.forEach(System.out::println);
+    System.out.println((""+records.size()+" records"));
   }
 
   @Test

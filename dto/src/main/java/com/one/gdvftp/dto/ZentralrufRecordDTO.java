@@ -6,6 +6,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NonNull;
@@ -60,7 +61,7 @@ public class ZentralrufRecordDTO {
    * fully-comprehensive    -> 02 = VK (Vollkasko)
    * partial-comprehensive  -> 03 = TK (Teilkasko)
    */
-  final private int deckungsArt;
+  @NonNull final private String deckungsArt;
 
   /**
    * Art der Schutzbrief-Deckung
@@ -71,7 +72,7 @@ public class ZentralrufRecordDTO {
    */
   final private boolean schutzbrief;
 
-  @NonNull final private List tkSb;
+  @NonNull final private Map<String, Integer> sb;
 
   /**
    * Herstellernummer
@@ -99,7 +100,7 @@ public class ZentralrufRecordDTO {
       + N( 8, date(getFavDatBis()))
       + N( 3, getVuGstNr())
       + N( 8, getAgent())
-      + N( 2, getDeckungsArt())
+      + A( 2, getDeckungsArt())
       + N( 1, serviceDeckung(isSchutzbrief()))
       + N( 8, 0) // Servicedeckung TODO: implement
       + N( 4, getHsn())
