@@ -77,6 +77,6 @@ message:
 
 amazon:
   s3:
-    accesskey: foo
-    secret: bar
+    accesskey: xxxx
+    secret: xxxx
     bucket: onebo-gdv-ftp-dev/test
