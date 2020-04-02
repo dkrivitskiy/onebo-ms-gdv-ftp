@@ -24,6 +24,9 @@ public class ProductParameter implements Display {
   @Column(name="name")
   private String name;
 
+  @Column(name="bindingfieldtosubmit__c")
+  private String bindingFieldToSubmit;
+
 
   @Override
   public String display() {
