@@ -102,7 +102,8 @@ public class ZentralrufRecordDTO {
       + N( 8, getAgent())
       + A( 2, getDeckungsArt())
       + N( 1, serviceDeckung(isSchutzbrief()))
-      + N( 8, 0) // Servicedeckung TODO: implement
+      + N( 4, getSb().get("TK"))
+      + N( 4, getSb().get("VK"))
       + N( 4, getHsn())
       + A( 3, getTsn())
       + N( 4, year(getZulassung()))
