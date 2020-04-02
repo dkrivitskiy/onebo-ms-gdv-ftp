@@ -29,6 +29,9 @@ public class ContractDetail implements Display {
   @Column(name="isdeleted")
   private Boolean deleted;
 
+  @Column(name="status__c")
+  private String status;
+
   @Column(name="validfrom__c")
   private LocalDateTime validFrom;
 
@@ -41,6 +44,7 @@ public class ContractDetail implements Display {
 
   @Override
   public String display() {
-    return "ContractDetail(pk=" + this.getPk() + ", deleted=" + this.getDeleted() + ", validFrom=" + this.getValidFrom() + ", parameters=" + Display.display(this.getParameters()) + ")";
+    return "ContractDetail(pk=" + this.getPk() + ", deleted=" + this.getDeleted() +", status=" + this.getStatus() +
+        ", validFrom=" + this.getValidFrom() + ", parameters=" + Display.display(this.getParameters()) + ")";
   }
 }
