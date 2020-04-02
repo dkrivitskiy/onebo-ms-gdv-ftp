@@ -52,9 +52,10 @@ public class Contract implements Display {
 
   @Override
   public String display() {
-    return "Contract(pk=" + this.getPk() + ", deleted=" + this.getDeleted() + ", name=" + this.getName() + ", symassid=" + this.getSymassid() + ", validTo=" + this.getValidTo() +
-        ", country=" + this.getCountry().display() + ", "
-        + "productGroup=" + this.getProductGroup().display() +
+    return "Contract(pk=" + this.getPk() + ", deleted=" + this.getDeleted() +
+        ", name=" + this.getName() + ", symassid=" + this.getSymassid() +
+        ", validTo=" + this.getValidTo() + ", country=" + this.getCountry().display() +
+        ", productGroup=" + this.getProductGroup().display() +
         ", details=" + Display.display(this.getDetails()) + ")";
   }
 }
