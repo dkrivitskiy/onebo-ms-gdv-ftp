@@ -1,5 +1,5 @@
 spring:
   datasource:
-    url: jdbc:postgresql://ec2-52-214-134-168.eu-west-1.compute.amazonaws.com:5432/d6majjelgmj5jm?ssl=true&sslfactory=org.postgresql.ssl.NonValidatingFactory
+    url: jdbc:postgresql://ec2-52-214-134-168.eu-west-1.compute.amazonaws.com:5432/d6majjelgmj5jm?ssl=true&sslfactory=org.postgresql.ssl.NonValidatingFactory&readOnly=true
     username: u108fo984nq2ce
     password: p74b8a03853895dff9af9fd3182e015852213d5c1c52380ba6a08e1c486a5e989
