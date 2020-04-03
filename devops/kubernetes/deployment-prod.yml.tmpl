@@ -1,0 +1,55 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: ${APPCOMPANYK8S}-${APP_NAME}
+  labels:
+    app: gitlabcienvironmentslug
+    app.kubernetes.io/name: ${APPCOMPANYK8S}-${APP_NAME}
+    app.kubernetes.io/version: "appversionk8s"
+    app.kubernetes.io/managed-by: ci
+    app.kubernetes.io/component: pod
+    app.kubernetes.io/part-of: ${APPCOMPANYK8S}-${APP_NAME}-svc
+  annotations:
+    app.gitlab.com/app: gitlabciprojectpathslug
+    app.gitlab.com/env: gitlabcienvironmentslug
+spec:
+  replicas: 2
+  revisionHistoryLimit: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: ${APP_NAME}
+  template:
+    metadata:
+      labels:
+        app: ${APP_NAME}
+    spec:
+      containers:
+      - name: ${APPCOMPANYK8S}-${APP_NAME}
+        image: ${REPOSITORY_URL}/${APP_NAME}:${CI_COMMIT_SHORT_SHA}
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080
+        livenessProbe:
+          httpGet:
+            path: ${HEALTHCHECKK8S}
+            port: 8080
+          initialDelaySeconds: 120
+          periodSeconds: 30
+          failureThreshold: 3
+
+        env:
+        - name: spring.profiles.active
+          value: prod
+        - name: CONFIG_ACCESS_URI
+          value: ${CONFIG_ACCESS_URI}
+        - name: CONFIG_ACCESS_USER
+          value: ${CONFIG_ACCESS_USER}
+        - name: CONFIG_ACCESS_PASSWORD
+          value: ${CONFIG_ACCESS_PASSWORD}
+        - name: LOGSTASH_HOST
+          value: ${LOGSTASH_HOST}

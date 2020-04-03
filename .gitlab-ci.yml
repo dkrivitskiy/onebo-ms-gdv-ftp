@@ -1,0 +1,88 @@
+include:
+  - project: 'apps/ci-templates'
+    ref: master
+    file: 'onebo-ms-gdv-ftp/deploy-dev.yaml'
+
+  - project: 'apps/ci-templates'
+    ref: master
+    file: 'onebo-ms-gdv-ftp/deploy-stg.yaml'
+
+  - project: 'apps/ci-templates'
+    ref: master
+    file: 'onebo-ms-gdv-ftp/deploy-prod.yaml'
+
+  - project: 'apps/ci-templates'
+    ref: master
+    file: 'onebo-ms-gdv-ftp/build.yaml'
+
+  - project: 'apps/ci-templates'
+    ref: master
+    file: 'onebo-ms-gdv-ftp/maven.yaml'
+
+image: docker:18.09
+
+variables:
+  HEALTHCHECKK8S: '/actuator/health'
+  APP_NAME: "onebo-ms-gdv-ftp"
+  REGIONAWSK8S: "eu-central-1"
+
+.rules-dev:
+  rules:
+    - if: "$CI_COMMIT_REF_NAME == 'develop'"
+      when: on_success
+    - if: "$CI_COMMIT_REF_NAME =~ /^feature/"
+      when: manual
+
+.rules-stg:
+  rules:
+    - if: "$CI_COMMIT_REF_NAME =~ /^release/"
+      when: on_success
+    - if: "$CI_COMMIT_REF_NAME =~ /^bugfix/ || $CI_COMMIT_REF_NAME =~ /^hotfix/"
+      when: manual
+
+services:
+  - docker:18.09-dind
+
+stages:
+  - maven
+  - build
+  - deploy-dev
+  - deploy-stg
+  - deploy-prod
+
+maven:
+  only:
+    - develop
+    - master
+    - /^feature/.*$/i
+    - /^release/.*$/i
+    - /^bugfix/.*$/i
+    - /^hotfix/.*$/i
+
+build:
+  when: on_success
+  only:
+    - develop
+    - master
+    - /^feature/.*$/i
+    - /^release/.*$/i
+    - /^bugfix/.*$/i
+    - /^hotfix/.*$/i
+
+deploy-dev:
+  environment: eks-one-dev
+  extends:
+    - .rules-dev
+
+deploy-stg:
+  environment: eks-one-stg
+  extends:
+    - .rules-stg
+
+deploy-prod:
+  environment: eks-one-prod
+  when: manual
+  only:
+    - master
+    - /^release/.*$/i
+    - /^hotfix/.*$/i
