@@ -244,10 +244,17 @@ public class ContractServiceImpl implements ContractService {
   }
 
   private static LocalDate zulassung(List<ContractDetailParameter> params, Contract contract) {
-    val milliseconds = Long.valueOf(parameter("firstRegistrationDateInsured", params, contract));
-    val localDateTime = LocalDateTime.ofInstant(
-        Instant.ofEpochMilli(milliseconds), ZoneId.of("CET"));  // TODO: ensure that this is the correct timezone
-    val result = localDateTime.toLocalDate();
-    return result;
+    val string = parameter("firstRegistrationDateInsured", params, contract);
+    if(string==null) throw new ContractException("firstRegistrationDateInsured is null.", contract);
+    try {
+      val milliseconds = Long.valueOf(string);
+      val localDateTime = LocalDateTime.ofInstant(
+          Instant.ofEpochMilli(milliseconds),
+          ZoneId.of("CET"));  // TODO: ensure that this is the correct timezone
+      val result = localDateTime.toLocalDate();
+      return result;
+    } catch(NumberFormatException e) {
+      throw new ContractException("Can not parse firstRegistrationDateInsured: "+string+".", contract)
+    }
   }
 }
