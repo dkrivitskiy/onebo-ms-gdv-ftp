@@ -54,7 +54,7 @@ public class ContractServiceImpl implements ContractService {
 
 
   @Override
-  public int writeZentralrufRecords() {
+  public int writeZentralrufRecords(String foldername, List<Contract> contracts) {
     int writtenCount = 0;
     int errorCount = 0;
     LocalDate previousDeliveryDate = null;  // TODO: implement
@@ -70,7 +70,6 @@ public class ContractServiceImpl implements ContractService {
         val header = ZentralrufRecordDTO.header(insuranceNumber, insuranceBranch);
         out.write(header); out.write("\n");
 
-        val contracts = repo.findContractsForZentralruf(now, 1000);
         for (Contract c : contracts) {
           try {
             val dto = zentralrufRecordDTO(c);
@@ -97,7 +96,7 @@ public class ContractServiceImpl implements ContractService {
 
       // Reading from tempfile
       try {
-        transfer.upload(filename, file);
+        transfer.upload(foldername+filename, file);
         System.out.println("records written: "+writtenCount); // TODO: logging
         return writtenCount;
       } finally {
@@ -138,16 +137,17 @@ public class ContractServiceImpl implements ContractService {
     if(art.contains("KH"))
       if(art.contains("TK"))
         if(art.contains("VK"))
-          return("[VK]");
+          return("VK");
         else
-          return("[TK]");
+          return("TK");
       else
-        return("[KH]");
+        return("KH");
     else
       return art;
   }
 
 
+  /** get the minimum getValidFrom of the details */
   private static LocalDate initialValidFrom(List<ContractDetail> details, Contract contract) {
     val dateTime = details.stream().map(ContractDetail::getValidFrom).min(LocalDateTime::compareTo);
     val date = dateTime.orElseThrow(()->new ContractException("ValidFrom is missing", contract)).toLocalDate();
@@ -186,7 +186,7 @@ public class ContractServiceImpl implements ContractService {
     val list = params.stream().
         filter(p -> name.equals(p.getParameter().getName())).collect(Collectors.toList());
     if(list.isEmpty())
-      throw new ContractException("Contract does not have parameter "+name, contract);
+      throw new ContractException("Contract does not have parameter "+name+".", contract);
     return list;
   }
 

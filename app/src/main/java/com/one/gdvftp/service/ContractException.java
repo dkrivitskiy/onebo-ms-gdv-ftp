@@ -6,11 +6,11 @@ import com.one.gdvftp.entity.Display;
 public class ContractException extends RuntimeException {
 
   private ContractException(String msg, String entity) {
-    super(msg+" "+entity);
+    super(msg+" - "+entity);
   }
 
   public ContractException(String msg, Display entity) {
-    this(msg, entity.display());
+    this(msg, Display.display(entity));
   }
 
 }
