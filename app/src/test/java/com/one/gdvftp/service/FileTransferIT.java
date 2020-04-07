@@ -1,6 +1,9 @@
 package com.one.gdvftp.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.one.gdvftp.boot.Application;
+import lombok.val;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,8 +18,22 @@ public class FileTransferIT {
   private FileTransfer transfer;
 
   @Test
-  public void testList() {
-    transfer.list();
+  public void testListBuckets() {
+    val buckets = transfer.listBuckets();
+    assertThat(buckets).isNotEmpty();
+    assertThat(buckets).containsAnyOf("onebo-gdv-ftp-dev", "onebo-gdv-ftp-stg", "onebo-gdv-ftp-prod");
+  }
+
+  @Test
+  public void testListObjects() {
+    val obs = transfer.listFolder("test/");
+    assertThat(obs).isNotEmpty();
+    assertThat(obs).contains("test/");
+  }
+
+  @Test
+  public void testUploadString() {
+    transfer.upload("test/empty", "");
   }
 
 }

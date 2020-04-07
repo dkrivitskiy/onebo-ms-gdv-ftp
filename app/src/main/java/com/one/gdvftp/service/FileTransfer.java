@@ -1,6 +1,7 @@
 package com.one.gdvftp.service;
 
-import com.amazonaws.services.s3.model.S3ObjectSummary;
+import static java.util.stream.Collectors.toList;
+
 import java.io.File;
 import java.util.List;
 import lombok.NonNull;
@@ -20,9 +21,20 @@ public class FileTransfer {
 
   private final @NonNull AmazonS3 s3Client;
 
-  public List<S3ObjectSummary> list() {
-    val list = s3Client.listObjects(s3Bucket).getObjectSummaries();
+  public List<String> listBuckets() {
+    val list = s3Client.listBuckets().stream().
+        map(b->b.getName()).collect(toList());
     return list;
+  }
+
+  public List<String> listFolder(String folder) {
+    val list = s3Client.listObjectsV2(s3Bucket, folder).getObjectSummaries().stream().
+        map(s->s.getKey()).collect(toList());
+    return list;
+  }
+
+  public void upload(String name, String content) {
+    s3Client.putObject(s3Bucket, name, content);
   }
 
   public void upload(String name, File file) {
