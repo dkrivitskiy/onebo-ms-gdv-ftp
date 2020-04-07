@@ -258,9 +258,9 @@ public class ZentralrufRecordDTO {
   }
 
   private static int deckungsart(String art) {
-    return "VK".equals(art) ? 2
-         : "TK".equals(art) ? 1
-         : 0; // "KH"
+    return "VK".equals(art) ? 3
+         : "TK".equals(art) ? 2
+         : 1; // "KH"
   }
 
 }

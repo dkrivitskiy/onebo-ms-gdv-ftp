@@ -25,7 +25,7 @@ public class ZentralrufRecordDtoTest {
     val rec = dto.toRecord();
     assertThat(rec).isEqualTo(
         "0123"+"vertr1234567890     "+"fakz12345678"+"000"+"20122021"+"30122021"+"012"+
-        "00000000"+"VK"+"1"+"2345"+"6789"+"4321"+"tsn"+"2021");
+        "00000000"+"03"+"1"+"2345"+"6789"+"4321"+"tsn"+"2021");
   }
 
   @Test
@@ -40,7 +40,7 @@ public class ZentralrufRecordDtoTest {
     val rec = dto.toRecord();
     assertThat(rec).isEqualTo(
         "0123"+"vertr1234567890     "+"fakz12345678"+"000"+"20122021"+"30122021"+"012"+
-            "00000000"+"TK"+"1"+"2345"+"0000"+"4321"+"tsn"+"2021");
+            "00000000"+"02"+"1"+"2345"+"0000"+"4321"+"tsn"+"2021");
   }
 
   @Test
@@ -54,7 +54,7 @@ public class ZentralrufRecordDtoTest {
     val rec = dto.toRecord();
     assertThat(rec).isEqualTo(
         "0123"+"vertr1234567890     "+"fakz12345678"+"000"+"20122021"+"30122021"+"012"+
-            "00000000"+"KH"+"1"+"0000"+"0000"+"4321"+"tsn"+"2021");
+            "00000000"+"01"+"1"+"0000"+"0000"+"4321"+"tsn"+"2021");
   }
 
 }
