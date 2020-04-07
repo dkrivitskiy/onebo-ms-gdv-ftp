@@ -100,7 +100,7 @@ public class ZentralrufRecordDTO {
       + N( 8, date(getFavDatBis()))
       + N( 3, getVuGstNr())
       + N( 8, getAgent())
-      + A( 2, getDeckungsArt())
+      + N( 2, deckungsart(getDeckungsArt()))
       + N( 1, serviceDeckung(isSchutzbrief()))
       + N( 4, getSb().get("TK"))
       + N( 4, getSb().get("VK"))
@@ -255,6 +255,12 @@ public class ZentralrufRecordDTO {
 
   private static int serviceDeckung(boolean schutzbrief) {
     return schutzbrief ? 1 : 0;
+  }
+
+  private static int deckungsart(String art) {
+    return "VK".equals(art) ? 2
+         : "TK".equals(art) ? 1
+         : 0; // "KH"
   }
 
 }
