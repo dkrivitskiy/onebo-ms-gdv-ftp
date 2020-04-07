@@ -21,18 +21,21 @@ public class FileTransfer {
 
   private final @NonNull AmazonS3 s3Client;
 
+  /** used for integration test */
   public List<String> listBuckets() {
     val list = s3Client.listBuckets().stream().
         map(b->b.getName()).collect(toList());
     return list;
   }
 
+  /** used for integration test */
   public List<String> listFolder(String folder) {
     val list = s3Client.listObjectsV2(s3Bucket, folder).getObjectSummaries().stream().
         map(s->s.getKey()).collect(toList());
     return list;
   }
 
+  /** used for integration test */
   public void upload(String kex, String content) {
     s3Client.putObject(s3Bucket, kex, content);
   }
