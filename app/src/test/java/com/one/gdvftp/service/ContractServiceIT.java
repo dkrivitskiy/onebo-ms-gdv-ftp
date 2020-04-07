@@ -46,8 +46,15 @@ public class ContractServiceIT {
 
     val records = contractsTops.stream().
         map(c -> {
-          try {return service.zentralrufRecordDTO(c);}
-          catch(Exception e) { System.err.println(e.getMessage()); return null;}
+          try {
+            return service.zentralrufRecordDTO(c);
+          } catch(ContractException e) {
+            System.err.println(e.getMessage());
+            return null;
+          } catch(Exception e) {
+            e.printStackTrace();
+            return null;
+          }
         }).
         filter(Objects::nonNull).
         collect(Collectors.toList());
