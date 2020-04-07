@@ -33,12 +33,12 @@ public class FileTransfer {
     return list;
   }
 
-  public void upload(String name, String content) {
-    s3Client.putObject(s3Bucket, name, content);
+  public void upload(String kex, String content) {
+    s3Client.putObject(s3Bucket, kex, content);
   }
 
-  public void upload(String name, File file) {
-    s3Client.putObject(s3Bucket, name, file);
+  public void upload(String key, File file) {
+    s3Client.putObject(s3Bucket, key, file);
   }
 
 }
