@@ -20,6 +20,7 @@ import lombok.*;
 @NoArgsConstructor
 @Getter
 @With
+@Builder
 public class ContractDetail implements Display {
 
   @Id

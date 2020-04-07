@@ -6,13 +6,19 @@ import lombok.val;
 
 public interface Display {
 
-  /** returns a short string to display the entity */
+  /**
+   * returns a short string to display the entity
+   */
   String display();
 
   static <T extends Display> String display(List<T> list) {
-    val displays = list.stream().map(Display::display).collect(Collectors.toList());
+    val displays = list.stream().map(x->Display.display(x)).collect(Collectors.toList());
     val s = String.join(", ", displays);
-    return "["+s+"]";
+    return "[" + s + "]";
+  }
+
+  static <T extends Display> String display(T item) {
+    return item == null ? "null" : item.display();
   }
 
 }

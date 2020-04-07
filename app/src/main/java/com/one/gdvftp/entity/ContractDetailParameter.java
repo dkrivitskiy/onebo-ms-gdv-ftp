@@ -8,6 +8,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
@@ -18,6 +19,7 @@ import lombok.ToString;
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
+@Builder
 public class ContractDetailParameter implements Display {
 
   @Id
@@ -44,6 +46,8 @@ public class ContractDetailParameter implements Display {
 
   @Override
   public String display() {
-    return getParameter().getName()+"="+getValueToShow()+"<"+getProductParameter().getName()+">";
+    return getParameter()==null?"null":getParameter().getName()
+        +"="+getValueToShow()+"<"
+        +(getProductParameter()==null?"null":getProductParameter().getName())+">";
   }
 }

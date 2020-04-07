@@ -20,6 +20,7 @@ import lombok.*;
 @NoArgsConstructor
 @Getter
 @With
+@Builder
 public class Contract implements Display {
 
   @Id
@@ -54,8 +55,8 @@ public class Contract implements Display {
   public String display() {
     return "Contract(pk=" + this.getPk() + ", deleted=" + this.getDeleted() +
         ", name=" + this.getName() + ", symassid=" + this.getSymassid() +
-        ", validTo=" + this.getValidTo() + ", country=" + this.getCountry().display() +
-        ", productGroup=" + this.getProductGroup().display() +
+        ", validTo=" + this.getValidTo() + ", country=" + Display.display(this.getCountry()) +
+        ", productGroup=" + Display.display(this.getProductGroup()) +
         ", details=" + Display.display(this.getDetails()) + ")";
   }
 }
