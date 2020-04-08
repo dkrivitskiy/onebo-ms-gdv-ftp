@@ -66,7 +66,7 @@ public class ContractServiceImpl implements ContractService {
     int writtenCount = 0;
     int errorCount = 0;
 
-    LocalDate previousDeliveryDate = null;  // TODO: implement
+    LocalDate previousDeliveryDate = today.minusDays(1);  // TODO: real implementation
     Integer previousDeliveryNumber = null;
     String prev = previousDeliveryNumber(foldername);
     int deliveryNumber = 1;
