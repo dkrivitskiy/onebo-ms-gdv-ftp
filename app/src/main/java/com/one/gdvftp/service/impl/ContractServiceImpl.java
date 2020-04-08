@@ -254,7 +254,7 @@ public class ContractServiceImpl implements ContractService {
       val result = localDateTime.toLocalDate();
       return result;
     } catch(NumberFormatException e) {
-      throw new ContractException("Can not parse firstRegistrationDateInsured: "+string+".", contract)
+      throw new ContractException("Can not parse firstRegistrationDateInsured: "+string+".", contract);
     }
   }
 }
