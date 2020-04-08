@@ -94,10 +94,10 @@ public class ContractServiceImpl implements ContractService {
             writtenCount++;
           } catch (ContractException e) {
             errorCount++;
-            log.error(e);
+            log.error(e.getClass().getName()+": "+e.getMessage());  // don't write a stacktrace to the log
           } catch (Exception e) {
             errorCount++;
-            log.error(e, e);
+            log.error(e);
           }
         }
         log.info("error count: "+errorCount);
@@ -106,8 +106,6 @@ public class ContractServiceImpl implements ContractService {
             today, deliveryNumber, writtenCount,
             previousDeliveryDate, previousDeliveryNumber);
         out.write(footer); out.write("\n");
-      } catch (Throwable e) {
-        log.error(e, e);
       }
 
       // Reading from tempfile
