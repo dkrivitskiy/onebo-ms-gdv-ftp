@@ -25,9 +25,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
-
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import lombok.val;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +35,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 
+@Log4j2
 @Service
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 @SuppressWarnings("UnnecessaryLocalVariable")
@@ -54,14 +55,20 @@ public class ContractServiceImpl implements ContractService {
 
 
   @Override
-  public int writeZentralrufRecords(String foldername, List<Contract> contracts) {
+  public int writeZentralrufRecords(String foldername, int limit) {
+    val today = LocalDate.now(clock);
+    val contractsTops = repo.findContractsForZentralruf(today, limit);
+    val writtenCount = writeZentralrufRecords(today, foldername, contractsTops);
+    return writtenCount;
+  }
+
+  public int writeZentralrufRecords(LocalDate today, String foldername, List<Contract> contracts) {
     int writtenCount = 0;
     int errorCount = 0;
     LocalDate previousDeliveryDate = null;  // TODO: implement
     Integer previousDeliveryNumber = null;  // TODO: implement
     int deliveryNumber = previousDeliveryNumber==null ? 1 : previousDeliveryNumber+1;
-    val now = LocalDate.now(clock);
-    val filename = ZentralrufRecordDTO.filename(insuranceNumber, insuranceBranch, now, deliveryNumber);
+    val filename = ZentralrufRecordDTO.filename(insuranceNumber, insuranceBranch, today, deliveryNumber);
     try {
       val file = File.createTempFile(filename, ".tmp");
 
@@ -78,26 +85,26 @@ public class ContractServiceImpl implements ContractService {
             writtenCount++;
           } catch (ContractException e) {
             errorCount++;
-            System.err.println(e.getMessage()); // TODO: logging
+            log.error(e);
           } catch (Exception e) {
             errorCount++;
-            e.printStackTrace(); // TODO: logging
+            log.error(e, e);
           }
         }
-        System.out.println("error count: "+errorCount); // TODO: logging
+        log.info("error count: "+errorCount);
 
         val footer = ZentralrufRecordDTO.footer(
-            now, deliveryNumber, writtenCount,
+            today, deliveryNumber, writtenCount,
             previousDeliveryDate, previousDeliveryNumber);
         out.write(footer); out.write("\n");
       } catch (Throwable e) {
-        e.printStackTrace();  // TODO: logging
+        log.error(e, e);
       }
 
       // Reading from tempfile
       try {
         transfer.upload(foldername+filename, file);
-        System.out.println("records written: "+writtenCount); // TODO: logging
+        log.info("records written: "+writtenCount);
         return writtenCount;
       } finally {
         file.delete();
@@ -107,7 +114,6 @@ public class ContractServiceImpl implements ContractService {
     }
   }
 
-  @Override
   public ZentralrufRecordDTO zentralrufRecordDTO(Contract contract) {
     val details = details(contract);
     val activeDetail = activeDetail(details(contract));

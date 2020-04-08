@@ -1,9 +1,12 @@
 package com.one.gdvftp.repository;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.one.gdvftp.boot.Application;
 import com.one.gdvftp.entity.Contract;
 import com.one.gdvftp.entity.Country;
 import com.one.gdvftp.entity.ProductGroup;
+import java.time.LocalDate;
 import lombok.val;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -13,10 +16,6 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
-
-import java.time.LocalDate;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
 @ContextConfiguration(classes = Application.class)
@@ -33,9 +32,9 @@ public class ContractRepositoryTest {
     @Autowired
     private ContractRepository repo;
 
-    private final LocalDate now = LocalDate.now();
-    private final LocalDate tomorrow = now.plusDays(1);
-    private final LocalDate yesterday = now.minusDays(1);
+    private final LocalDate today = LocalDate.now();
+    private final LocalDate tomorrow = today.plusDays(1);
+    private final LocalDate yesterday = today.minusDays(1);
 
     private final Country germany = new Country("de", "Deutschland", "DE");
     private final Country schweiz = new Country("ch", "Schweiz", "CH");
@@ -63,7 +62,7 @@ public class ContractRepositoryTest {
         // All must be persisted.
         assertThat(repo.findAll()).hasSize(5);
 
-        val liste = repo.findContractsForZentralruf(now, 10);
+        val liste = repo.findContractsForZentralruf(today, 10);
         // Only one fits the criteria.
         assertThat(liste).isNotEmpty();
         assertThat(liste).hasSize(1);

@@ -10,13 +10,12 @@ import com.one.gdvftp.entity.ContractDetailParameter;
 import com.one.gdvftp.entity.Parameter;
 import com.one.gdvftp.entity.ProductParameter;
 import com.one.gdvftp.repository.ContractRepository;
-
+import com.one.gdvftp.service.impl.ContractServiceImpl;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.stream.Collectors;
-
 import lombok.val;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -33,7 +32,7 @@ public class ContractServiceIT {
   private ContractRepository repo;
 
   @Autowired
-  private ContractService service;
+  private ContractServiceImpl service;
 
   @Test @Ignore // TODO: put at least one matching contract in the dev database
   public void testConvertSomeContractsToZentralrufDTO() throws ContractException {
@@ -78,7 +77,7 @@ public class ContractServiceIT {
     val detail = ContractDetail.builder()
         .deleted(false)
         .status("ACTIVE")
-        .validFrom(LocalDateTime.of(2020,1,1,0,0))
+        .validFrom(LocalDateTime.of(2019,1,1,0,0))
         .parameters(parameters)
         .build();
     val contract = Contract.builder()
@@ -86,7 +85,8 @@ public class ContractServiceIT {
         .symassid("symass1234")
         .details(singletonList(detail))
         .build();
-    int count = service.writeZentralrufRecords("test/", singletonList(contract));
+    val today = LocalDate.of(2020,1,1);
+    int count = service.writeZentralrufRecords(today,"test/", singletonList(contract));
     assertThat(count).isPositive();
   }
 
@@ -103,5 +103,4 @@ public class ContractServiceIT {
         .productParameter(ProductParameter.builder().bindingFieldToSubmit("KH.insurances.deduction").build())
         .build();
   }
-
 }
