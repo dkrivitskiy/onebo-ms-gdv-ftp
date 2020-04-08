@@ -7,8 +7,8 @@ spring:
   datasource:
     platform: postgres
     url: jdbc:postgresql://ec2-52-214-134-168.eu-west-1.compute.amazonaws.com:5432/d6majjelgmj5jm?ssl=true&sslfactory=org.postgresql.ssl.NonValidatingFactory
-    username: -
-    password: -
+    username: "use profile local or dev or prod"
+    password: "use profile local or dev or prod"
     driverClassName: org.postgresql.Driver
   jpa:
     database: POSTGRESQL
@@ -74,3 +74,16 @@ message:
   insurance:
     insurance-number: 9496
     insurance-branch: 1
+
+amazon:
+  s3:
+    accesskey: "use profile local or dev or prod"
+    secret: "use profile local or dev or prod"
+    bucket: onebo-gdv-ftp-dev/test
+
+cron:
+  expression:
+    #"* * * ? * *" # every 1 seconds
+    "0/10 * * ? * *" # every 10th seconds
+    #"0 * * ? * *" # every minute
+    #"0 0 * ? * *" # every hour

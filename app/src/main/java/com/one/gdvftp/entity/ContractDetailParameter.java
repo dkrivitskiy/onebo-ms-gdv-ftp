@@ -8,6 +8,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
@@ -18,6 +19,7 @@ import lombok.ToString;
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
+@Builder
 public class ContractDetailParameter implements Display {
 
   @Id
@@ -38,8 +40,14 @@ public class ContractDetailParameter implements Display {
   @JoinColumn(name = "contractdetail__r__pkexternalid__c")
   @ToString.Exclude private ContractDetail contractDetail;
 
+  @ManyToOne
+  @JoinColumn(name = "productparameter__r__pkexternalid__c")
+  private ProductParameter productParameter;
+
   @Override
   public String display() {
-    return getParameter().getName()+"="+getValueToShow();
+    return getParameter()==null?"null":getParameter().getName()
+        +"="+getValueToShow()+"<"
+        +(getProductParameter()==null?"null":getProductParameter().getName())+">";
   }
 }

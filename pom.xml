@@ -29,8 +29,10 @@
         <lombok.version>1.18.10</lombok.version>
         <spring-cloud.version>Greenwich.RELEASE</spring-cloud.version>
         <logbook.version>1.13.0</logbook.version>
+        <jool.version>0.9.14</jool.version>
         <logstash-logback-encoder.version>6.2</logstash-logback-encoder.version>
         <postgresql.version>9.4.1208</postgresql.version>
+        <aws-java-sdk.version>1.11.163</aws-java-sdk.version>
     </properties>
 
     <dependencyManagement>

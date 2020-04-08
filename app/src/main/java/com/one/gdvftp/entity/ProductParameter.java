@@ -4,7 +4,6 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -12,13 +11,13 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 @Entity
-@Table(name = "parameter__c")
+@Table(name = "productparameter__c")
 @ToString
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Builder
-public class Parameter {
+public class ProductParameter implements Display {
 
   @Id
   @Column(name="pkexternalid__c")
@@ -27,7 +26,12 @@ public class Parameter {
   @Column(name="name")
   private String name;
 
-  @Column(name="type__c")
-  private String type;
+  @Column(name="bindingfieldtosubmit__c")
+  private String bindingFieldToSubmit;
 
+
+  @Override
+  public String display() {
+    return getName();
+  }
 }
