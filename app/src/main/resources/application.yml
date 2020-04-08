@@ -7,8 +7,8 @@ spring:
   datasource:
     platform: postgres
     url: jdbc:postgresql://ec2-52-214-134-168.eu-west-1.compute.amazonaws.com:5432/d6majjelgmj5jm?ssl=true&sslfactory=org.postgresql.ssl.NonValidatingFactory
-    username: -
-    password: -
+    username: "use profile local or dev or prod"
+    password: "use profile local or dev or prod"
     driverClassName: org.postgresql.Driver
   jpa:
     database: POSTGRESQL
@@ -77,8 +77,8 @@ message:
 
 amazon:
   s3:
-    accesskey: xxxx
-    secret: xxxx
+    accesskey: "use profile local or dev or prod"
+    secret: "use profile local or dev or prod"
     bucket: onebo-gdv-ftp-dev/test
 
 cron:
