@@ -51,7 +51,7 @@ public class ContractServiceImpl implements ContractService {
 
   private final @NonNull FileTransfer transfer;
 
-  Clock clock = Clock.system(ZoneId.of("CET")); // can be changed for tests
+  Clock clock = Clock.system(ZoneId.of("CET"));   // This clock can be replaced for tests.
 
 
   @Override
@@ -65,10 +65,19 @@ public class ContractServiceImpl implements ContractService {
   public int writeZentralrufRecords(LocalDate today, String foldername, List<Contract> contracts) {
     int writtenCount = 0;
     int errorCount = 0;
+
     LocalDate previousDeliveryDate = null;  // TODO: implement
-    Integer previousDeliveryNumber = null;  // TODO: implement
-    int deliveryNumber = previousDeliveryNumber==null ? 1 : previousDeliveryNumber+1;
+    Integer previousDeliveryNumber = null;
+    String prev = previousDeliveryNumber(foldername);
+    int deliveryNumber = 1;
+    if(!prev.isEmpty()) {
+      int prevYear = Integer.valueOf(prev.substring(0,4));
+      previousDeliveryNumber = Integer.valueOf(prev.substring(4,7));
+      deliveryNumber = previousDeliveryNumber + 1;
+      // TODO: start with deliveryNumber=1 if the year changed
+    }
     val filename = ZentralrufRecordDTO.filename(insuranceNumber, insuranceBranch, today, deliveryNumber);
+
     try {
       val file = File.createTempFile(filename, ".tmp");
 
@@ -199,8 +208,8 @@ public class ContractServiceImpl implements ContractService {
   private static String parameter(String name, List<ContractDetailParameter> params, Contract contract) {
     val list = parameters(name, params, contract);
 // TODO: fix this problem for zulassung
-//    if(list.size()>1)
-//      throw new ContractException("Contract has more than 1 parameter "+name, contract);
+    if(list.size()>1)
+      throw new ContractException("Contract has more than 1 parameter "+name, contract);
     val result = list.get(0).getValueToShow();
     return result;
   }
@@ -263,4 +272,27 @@ public class ContractServiceImpl implements ContractService {
       throw new ContractException("Can not parse firstRegistrationDateInsured: "+string+".", contract);
     }
   }
+
+  /**
+   * Returns the largest 7 digit delivery number (including year) from the folder in S3.
+   */
+  private String previousDeliveryNumber(String foldername) {
+
+    // filename contains two 7 digit numbers:
+    //   VuNr + VuGstNr
+    //   year + delivery number
+    // Example: dat.9496001.aza.2020001
+    val pattern = "^\\D+\\d{7}\\D+\\d{7}$";
+
+    val filename = transfer.listFolder(foldername).stream()
+        .map(path -> path.split("/"))           // split the path into parts
+        .filter(parts -> parts.length == 2)           // path must have 2 parts (foldername+filename)
+        .map(parts -> parts[1])                       // take the filename
+        .filter(name -> name.matches(pattern))        // filter for correct format
+        .map(name -> name.substring(name.length()-7)) // take the last 7 chars
+        .max(String::compareTo);                      // get the largest number (as String)
+
+    return filename.orElse("");
+  }
+
 }
