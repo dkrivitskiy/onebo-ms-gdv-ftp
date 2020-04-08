@@ -80,3 +80,10 @@ amazon:
     accesskey: xxxx
     secret: xxxx
     bucket: onebo-gdv-ftp-dev/test
+
+cron:
+  expression:
+    #"* * * ? * *" # every 1 seconds
+    "0/10 * * ? * *" # every 10th seconds
+    #"0 * * ? * *" # every minute
+    #"0 0 * ? * *" # every hour
