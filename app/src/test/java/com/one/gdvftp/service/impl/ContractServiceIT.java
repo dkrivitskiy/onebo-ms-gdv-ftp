@@ -1,4 +1,4 @@
-package com.one.gdvftp.service;
+package com.one.gdvftp.service.impl;
 
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -10,13 +10,18 @@ import com.one.gdvftp.entity.ContractDetailParameter;
 import com.one.gdvftp.entity.Parameter;
 import com.one.gdvftp.entity.ProductParameter;
 import com.one.gdvftp.repository.ContractRepository;
-import com.one.gdvftp.service.impl.ContractServiceImpl;
+import com.one.gdvftp.service.ContractException;
+import java.time.Clock;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import lombok.val;
+import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -34,11 +39,19 @@ public class ContractServiceIT {
   @Autowired
   private ContractServiceImpl service;
 
+  @Before
+  public void before() {
+    // using a fixed clock
+    val zoneId = ZoneId.systemDefault();
+    val now = ZonedDateTime.of(2020,1,1, 12, 0, 0, 0, zoneId);
+    service.clock = Clock.fixed(Instant.from(now), zoneId);
+  }
+
   @Test @Ignore // TODO: put at least one matching contract in the dev database
   public void testConvertSomeContractsToZentralrufDTO() throws ContractException {
 
     val contractsTops = repo.findContractsForZentralruf(
-            LocalDate.of(1970,1,1), 10);
+            LocalDate.of(1970,1,1), 20);
 
     assertThat(contractsTops).isNotEmpty();
       System.out.println("found "+contractsTops.size()+" contracts");
@@ -87,6 +100,12 @@ public class ContractServiceIT {
         .build();
     val today = LocalDate.of(2020,1,1);
     int count = service.writeZentralrufRecords(today,"test/", singletonList(contract));
+    assertThat(count).isPositive();
+  }
+
+  @Test
+  public void testWriteZentralrufRecords() {
+    int count = service.writeZentralrufRecords("test/", 20);
     assertThat(count).isPositive();
   }
 
