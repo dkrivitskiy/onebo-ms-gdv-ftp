@@ -4,6 +4,7 @@ import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.mapping;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
+import static java.util.stream.Collectors.toSet;
 
 import com.one.gdvftp.dto.ZentralrufRecordDTO;
 import com.one.gdvftp.entity.Contract;
@@ -57,8 +58,9 @@ public class ContractServiceImpl implements ContractService {
   @Override
   public int writeZentralrufRecords(String foldername, int limit) {
     val today = LocalDate.now(clock);
-    val contractsTops = repo.findContractsForZentralruf(today, limit);
-    val writtenCount = writeZentralrufRecords(today, foldername, contractsTops);
+    // val count = repo.countContractsForZentralruf(today);
+    val contracts = repo.findContractsForZentralruf(today, limit);
+    val writtenCount = writeZentralrufRecords(today, foldername, contracts);
     return writtenCount;
   }
 
@@ -93,8 +95,8 @@ public class ContractServiceImpl implements ContractService {
             out.write(record); out.write("\n");
             writtenCount++;
           } catch (ContractException e) {
-            errorCount++;
-            log.error(e.getClass().getName()+": "+e.getMessage());  // don't write a stacktrace to the log
+              errorCount++;
+              log.error(e.getClass().getName() + ": " + e.getMessage());  // don't write a stacktrace to the log
           } catch (Exception e) {
             errorCount++;
             log.error(e);
@@ -205,11 +207,16 @@ public class ContractServiceImpl implements ContractService {
 
   private static String parameter(String name, List<ContractDetailParameter> params, Contract contract) {
     val list = parameters(name, params, contract);
-// TODO: fix this problem for zulassung
-    if(list.size()>1)
-      throw new ContractException("Contract has more than 1 parameter "+name, contract);
-    val result = list.get(0).getValueToShow();
-    return result;
+// TODO: fix this problem
+//    if(list.size()>1)
+//      throw new ContractException("Contract has more than 1 parameter "+name, contract);
+    val set = list.stream().map(p -> p.getValueToShow()).collect(toSet());
+
+    if(set.size()>1)
+      throw new ContractException("Contract has more than 1 parameter "+name+".", contract);
+    if(set.size()==0)
+      throw new ContractException("Contract has no parameter "+name+".", contract);   // must not happen
+    return set.iterator().next();
   }
 
   private static String normalizedLicensePlate(List<ContractDetailParameter> params, Contract contract) {
@@ -224,7 +231,9 @@ public class ContractServiceImpl implements ContractService {
   }
 
   private static Boolean assistance(List<ContractDetailParameter> params, Contract contract) {
-    return Boolean.valueOf(parameter("Assistance", params, contract));
+    val string = parameter("Assistance", params, contract);
+    if(string==null) return false;
+    return Boolean.valueOf(string);
   }
 
   // calculate the deductibles (for KH, TK, VK)
