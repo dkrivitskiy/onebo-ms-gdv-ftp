@@ -41,7 +41,7 @@ public class ContractRepositoryTest {
     private final ProductGroup motor = new ProductGroup("m", "Motor");
     private final ProductGroup haus = new ProductGroup("h", "Hausrat");
 
-    private final Contract goodContract = new Contract("1",false,"one", "1111", tomorrow,
+    private final Contract goodContract = new Contract("1",false,"Active","one", "1111", tomorrow,
             germany, motor, null);
 
     @Test

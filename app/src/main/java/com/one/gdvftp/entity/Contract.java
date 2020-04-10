@@ -30,6 +30,9 @@ public class Contract implements Display {
   @Column(name="isdeleted")
   private Boolean deleted;
 
+  @Column(name="statusone__c")
+  private String statusOne;
+
   @Column(name="name")
   private String name;
 
