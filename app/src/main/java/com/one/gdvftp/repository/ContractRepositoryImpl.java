@@ -23,13 +23,13 @@ public class ContractRepositoryImpl implements ContractRepositoryExtension {
 
     @Override
     @SuppressWarnings("UnnecessaryLocalVariable")
-    public List<Contract> findContractsForZentralruf(LocalDate after, int limit) {
+    public List<Contract> findContractsForZentralruf(LocalDate today, int limit) {
 
         val builder = em.getCriteriaBuilder();
         val query = builder.createQuery(Contract.class);
         val contract = query.from(Contract.class);
 
-        where(contract, query, builder);
+        where(contract, query, builder, today);
         val result = em.createQuery(query).setMaxResults(limit).getResultList();
 
         return result;
@@ -37,20 +37,20 @@ public class ContractRepositoryImpl implements ContractRepositoryExtension {
 
     @Override
     @SuppressWarnings("UnnecessaryLocalVariable")
-    public Long countContractsForZentralruf(LocalDate after) {
+    public Long countContractsForZentralruf(LocalDate today) {
 
         val builder = em.getCriteriaBuilder();
         val query = builder.createQuery(Long.class);
         val contract = query.from(Contract.class);
         val count = query.select(builder.count(contract));
 
-        where(contract, query, builder);
+        where(contract, query, builder, today);
         val result = em.createQuery(query).getSingleResult();
 
         return result;
     }
 
-    private <T> void where(Root<Contract> contract, CriteriaQuery<T> query, CriteriaBuilder builder) {
+    private <T> void where(Root<Contract> contract, CriteriaQuery<T> query, CriteriaBuilder builder, LocalDate today) {
 
         val details = contract.joinList("details", JoinType.LEFT);
         query.where(
@@ -59,8 +59,11 @@ public class ContractRepositoryImpl implements ContractRepositoryExtension {
             builder.equal(contract.get("country").get("isoCountryCode"), "DE"),
             builder.equal(contract.get("productGroup").get("name"), "Motor"),
             builder.isFalse(details.get("deleted")),
-            builder.equal(details.get("status"), "ACTIVE")
-            //,builder.greaterThan(contract.get("validTo"), after)  // this is null for 99.99% of contracts
+            builder.equal(details.get("status"), "ACTIVE"),
+            builder.or(
+                builder.isNull(contract.get("validTo")),
+                builder.greaterThan(contract.get("validTo"), today)
+            )
         );
     }
 }

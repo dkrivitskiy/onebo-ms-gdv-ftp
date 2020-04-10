@@ -7,6 +7,6 @@ import java.util.List;
 
 public interface ContractRepositoryExtension {
 
-    Long countContractsForZentralruf(LocalDate after);
-    List<Contract> findContractsForZentralruf(LocalDate after, int limit);
+    Long countContractsForZentralruf(LocalDate today);
+    List<Contract> findContractsForZentralruf(LocalDate today, int limit);
 }

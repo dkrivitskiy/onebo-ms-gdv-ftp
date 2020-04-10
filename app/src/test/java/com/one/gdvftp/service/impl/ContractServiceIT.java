@@ -50,8 +50,8 @@ public class ContractServiceIT {
   @Test @Ignore // TODO: put at least one matching contract in the dev database
   public void testConvertSomeContractsToZentralrufDTO() throws ContractException {
 
-    val now = LocalDate.now(service.clock);
-    val contractsTops = repo.findContractsForZentralruf(now, 20);
+    val today = LocalDate.now(service.clock);
+    val contractsTops = repo.findContractsForZentralruf(today, 20);
 
     assertThat(contractsTops).isNotEmpty();
       System.out.println("found "+contractsTops.size()+" contracts");

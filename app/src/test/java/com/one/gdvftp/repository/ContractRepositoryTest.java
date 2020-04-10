@@ -1,9 +1,13 @@
 package com.one.gdvftp.repository;
 
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
+import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.one.gdvftp.boot.Application;
 import com.one.gdvftp.entity.Contract;
+import com.one.gdvftp.entity.ContractDetail;
 import com.one.gdvftp.entity.Country;
 import com.one.gdvftp.entity.ProductGroup;
 import java.time.LocalDate;
@@ -40,9 +44,10 @@ public class ContractRepositoryTest {
     private final Country schweiz = new Country("ch", "Schweiz", "CH");
     private final ProductGroup motor = new ProductGroup("m", "Motor");
     private final ProductGroup haus = new ProductGroup("h", "Hausrat");
+    private final ContractDetail detail = new ContractDetail("d1", false, "ACTIVE", null, emptyList(), null);
 
-    private final Contract goodContract = new Contract("1",false,"Active","one", "1111", tomorrow,
-            germany, motor, null);
+    private final Contract goodContract = new Contract("c1",false,"Active","one", "1111", tomorrow,
+            germany, motor, emptyList());
 
     @Test
     public void findContractsForZentralruf() {
@@ -50,17 +55,23 @@ public class ContractRepositoryTest {
         assertThat(repo).isNotNull();
 
         // Contracts that fits the criteria for Zentralruf (ONEBACK-2444)
-        persist(goodContract);
+        val good = persist(goodContract
+            .withDetails(singletonList(detail)));
 
         // Contracts that do not fit the criteria
-        persist(goodContract.withPk("2").withDeleted(true));
-        persist(goodContract.withPk("3").withCountry(schweiz));
-        persist(goodContract.withPk("4").withProductGroup(haus));
-        persist(goodContract.withPk("5").withValidTo(yesterday));
-
+        persist(goodContract.withPk("c2").withDeleted(true)
+            .withDetails(singletonList(detail.withPk("d2"))));
+        persist(goodContract.withPk("c3").withCountry(schweiz)
+            .withDetails(singletonList(detail.withPk("d3"))));
+        persist(goodContract.withPk("c4").withProductGroup(haus)
+            .withDetails(singletonList(detail.withPk("d4"))));
+        persist(goodContract.withPk("c5").withValidTo(yesterday)
+            .withDetails(singletonList(detail.withPk("d5"))));
         manager.flush();
+
         // All must be persisted.
-        assertThat(repo.findAll()).hasSize(5);
+        val all = repo.findAll();
+        assertThat(all).hasSize(5);
 
         val liste = repo.findContractsForZentralruf(today, 10);
         // Only one fits the criteria.
@@ -69,14 +80,17 @@ public class ContractRepositoryTest {
 
         val contract = liste.get(0);
         // That one contract must be the goodContract, and all fields must have the correct value.
-        assertThat(contract).isEqualToComparingFieldByFieldRecursively(goodContract);
+        assertThat(contract).isEqualToComparingFieldByFieldRecursively(good);
     }
 
     private Contract persist(Contract c) {
         manager.persist(c.getCountry());
         manager.persist(c.getProductGroup());
+        c.setDetails(
+            c.getDetails().stream().map(cd ->
+            manager.persist(cd.withContract(c))
+        ).collect(toList()));
         manager.persist(c);
         return c;
     }
-
 }
