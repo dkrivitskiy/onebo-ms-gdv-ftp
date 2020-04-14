@@ -89,6 +89,9 @@ public class ContractServiceImpl implements ContractService {
         out.write(header); out.write("\n");
 
         for (Contract c : contracts) {
+//          if(c.getName().equals("CON-0310861")) {
+//            System.err.println(c);  // no assistance
+//          }
           try {
             val dto = zentralrufRecordDTO(c);
             val record = dto.toRecord();
@@ -201,48 +204,56 @@ public class ContractServiceImpl implements ContractService {
     return list.get(0);
   }
 
-  private static List<ContractDetailParameter> parameters(String name, List<ContractDetailParameter> params, Contract contract) {
+  private static List<ContractDetailParameter> parameters(String name, List<ContractDetailParameter> params, boolean required, Contract contract) {
     val list = params.stream().
         filter(p -> name.equals(p.getParameter().getName())).collect(Collectors.toList());
-    if(list.isEmpty())
+    if(required && list.isEmpty())
       throw new ContractException("Contract does not have parameter "+name+".", contract);
     return list;
   }
 
-  private static String parameter(String name, List<ContractDetailParameter> params, Contract contract) {
-    val list = parameters(name, params, contract);
-// TODO: fix this problem
-//    if(list.size()>1)
-//      throw new ContractException("Contract has more than 1 parameter "+name, contract);
+  private static String parameter(String name, List<ContractDetailParameter> params, boolean required, Contract contract) {
+
+    val list = parameters(name, params, required, contract);
     val set = list.stream().map(p -> p.getValueToShow()).collect(toSet());
 
     if(set.size()>1)
       throw new ContractException("Contract has more than 1 parameter "+name+".", contract);
-    if(set.size()==0)
-      throw new ContractException("Contract has no parameter "+name+".", contract);   // must not happen
+
+    if(set.size()==0) {
+      if (required) {
+        throw new ContractException("Contract has no parameter " + name + ".",
+            contract);   // must not happen
+      } else {
+        return null;
+      }
+    }
+
     return set.iterator().next();
   }
 
   private static String normalizedLicensePlate(List<ContractDetailParameter> params, Contract contract) {
-    val plate = parameter("NormalizedLicensePlate", params, contract);
+    val plate = parameter("NormalizedLicensePlate", params, true, contract);
     val result = plate.replaceAll("_", " ");
+    if(result.contains("Ä") || result.contains("Ö") || result.contains("Ü"))
+      throw new ContractException("Normalized license plate contains umlaut \""+result+"\".", contract);
     return result;
   }
 
   private static List<ContractDetailParameter> productTypes(List<ContractDetailParameter> params, Contract contract) {
-    val result = parameters("productType", params, contract);
+    val result = parameters("productType", params, true, contract);
     return result;
   }
 
   private static Boolean assistance(List<ContractDetailParameter> params, Contract contract) {
-    val string = parameter("Assistance", params, contract);
+    val string = parameter("Assistance", params, false, contract);
     if(string==null) return false;
     return Boolean.valueOf(string);
   }
 
   // calculate the deductibles (for KH, TK, VK)
   private static Map<String, Integer> deductibles(List<ContractDetailParameter> params, Contract contract) {
-    val deductibles = parameters("deductible", params, contract);
+    val deductibles = parameters("deductible", params, true, contract);
     val size = deductibles.size();
     val map = deductibles.stream().collect(
         groupingBy(p -> StringUtils.left(p.getProductParameter().getBindingFieldToSubmit(), 2),
@@ -260,17 +271,17 @@ public class ContractServiceImpl implements ContractService {
   }
 
   private static Short hsn(List<ContractDetailParameter> params, Contract contract) {
-    val hsn = parameter("vehicleHSN", params, contract);
+    val hsn = parameter("vehicleHSN", params, true, contract);
     if(hsn==null) throw new ContractException("HSN must not be null.", contract);
     return Short.valueOf(hsn);
   }
 
   private static String tsn(List<ContractDetailParameter> params, Contract contract) {
-    return parameter("vehicleTSN", params, contract);
+    return parameter("vehicleTSN", params, true, contract);
   }
 
   private static LocalDate zulassung(List<ContractDetailParameter> params, Contract contract) {
-    val string = parameter("firstRegistrationDateInsured", params, contract);
+    val string = parameter("firstRegistrationDateInsured", params, true, contract);
     if(string==null) throw new ContractException("firstRegistrationDateInsured is null.", contract);
     try {
       val milliseconds = Long.valueOf(string);
@@ -288,20 +299,18 @@ public class ContractServiceImpl implements ContractService {
   private boolean isSwitch(List<ContractDetailParameter> productTypes) {
     val isSwitch = productTypes.stream().map((p -> p.getProductParameter().getName()))
         .allMatch(name -> name.contains("Switch"));
-    if(isSwitch)
-      System.out.println("SWITCH");
     return isSwitch;
   }
 
 
   /**
-   * Returns the largest 7 digit delivery number (including year) from the folder in S3.
+   * Returns the largest delivery number (7 digit including year) from the folder in S3.
    */
   private String previousDeliveryNumber(String foldername) {
 
     // filename contains two 7 digit numbers:
-    //   VuNr + VuGstNr
-    //   year + delivery number
+    //   1) VuNr + VuGstNr
+    //   2) year + delivery number
     // Example: dat.9496001.aza.2020001
     val pattern = "^\\D+\\d{7}\\D+\\d{7}$";
 
