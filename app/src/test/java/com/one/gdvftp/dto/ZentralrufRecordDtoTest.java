@@ -14,6 +14,23 @@ import org.junit.Test;
 public class ZentralrufRecordDtoTest {
 
   @Test
+  public void testHeader() {
+    val header = ZentralrufRecordDTO.header(1234, 567);
+    assertThat(header.length()).isEqualTo(ZentralrufRecordDTO.SIZE);
+    assertThat(header).isEqualTo("KONTROLLE BV"+"8333"+"AZA"+" "+"1234"+"567"+"   "
+        +"                                                          ");
+  }
+
+  @Test
+  public void testFooter() {
+    val today = LocalDate.of(2020,1,31);
+    val footer = ZentralrufRecordDTO.footer(today, 2, 999, today.minusDays(1), 1);
+    assertThat(footer.length()).isEqualTo(ZentralrufRecordDTO.SIZE);
+    assertThat(footer).isEqualTo("KONTROLLE BN"+"20200131"+"0002"+"00000999"+"20200130"+"0001"+"   "
+        +"                                         ");
+  }
+
+  @Test
   public void testRecordVK() {
     val date = LocalDate.of(2021,12,30);
     val deductibles = MapUtil.mapOf(Seq.of("KH", "TK", "VK"), Seq.of(0, 2345, 6789));

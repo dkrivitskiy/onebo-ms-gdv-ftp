@@ -152,14 +152,13 @@ public class ZentralrufRecordDTO {
   ) {
     val h =
           A( 12, "KONTROLLE BN")
-        + A( 4, "8333") // Ziel-VU
         + A( 8, isoDate(creationDate))
         + N( 4, deliveryNumber) // documentation says: type A
         + N( 8, recordCount)    // documentation says: type A
         + A( 8, isoDate(previousDeliveryDate))
         + N( 4, previousDeliveryNumber) // documentation says: type A
         + A( 3, "")     // Information zum Sachgebiet
-        + A(SIZE-12-4-8-4-8-8-4-3, "")  // filler spaces
+        + A(SIZE-12-8-4-8-8-4-3, "")  // filler spaces
         ;
     checkAscii(h);
     checkLength(h, SIZE);
