@@ -14,6 +14,13 @@ import org.junit.Test;
 public class ZentralrufRecordDtoTest {
 
   @Test
+  public void testFilename() {
+    val today = LocalDate.of(2020,1,31);
+    val name = ZentralrufRecordDTO.filename(1234, 567, today, 890);
+    assertThat(name).isEqualTo("dat."+"1234"+"567"+".aza."+"2020"+"890");
+  }
+
+  @Test
   public void testHeader() {
     val header = ZentralrufRecordDTO.header(1234, 567);
     assertThat(header.length()).isEqualTo(ZentralrufRecordDTO.SIZE);
