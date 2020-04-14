@@ -109,7 +109,7 @@ public class ZentralrufRecordDTO extends DTO {
   }
 
   public static String filename(int vuNr, int vuGstNr, LocalDate creationDate, int deliveryNumber) {
-    val h =
+    val n =
         A( 3, "dat")
       + A( 1, ".")
       + N( 4, vuNr)
@@ -120,9 +120,9 @@ public class ZentralrufRecordDTO extends DTO {
       + N( 4, year(creationDate))
       + N( 3, deliveryNumber)
       ;
-    checkAscii(h);
-    checkLength(h, 23);
-    return h;
+    checkAscii(n);
+    checkLength(n, 23);
+    return n;
   }
 
   public static String header(int vuNr, int vuGstNr) {
@@ -145,7 +145,7 @@ public class ZentralrufRecordDTO extends DTO {
       LocalDate creationDate, int deliveryNumber, int recordCount,
       LocalDate previousDeliveryDate, Integer previousDeliveryNumber
   ) {
-    val h =
+    val f =
           A( 12, "KONTROLLE BN")
         + A( 8, isoDate(creationDate))
         + N( 4, deliveryNumber) // documentation says: type A
@@ -155,9 +155,9 @@ public class ZentralrufRecordDTO extends DTO {
         + A( 3, "")     // Information zum Sachgebiet
         + A(SIZE-12-8-4-8-8-4-3, "")  // filler spaces
         ;
-    checkAscii(h);
-    checkLength(h, SIZE);
-    return h;
+    checkAscii(f);
+    checkLength(f, SIZE);
+    return f;
   }
 
   private static int serviceDeckung(boolean schutzbrief) {

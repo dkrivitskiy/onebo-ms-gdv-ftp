@@ -7,6 +7,23 @@ public class VwbRequestDTO extends DTO {
 
   static final int SIZE = 45; // 88
 
+  public static String filename(int vuNr, int vuGstNr, LocalDate creationDate, int deliveryNumber) {
+    val n =
+        A( 3, "dat")
+      + A( 1, ".")
+      + N( 4, vuNr)
+      + N( 3, vuGstNr)
+      + A( 1, ".")
+      + A( 3, "kvb")     // Sachgebiet
+      + A( 1, ".")
+      + N( 4, year(creationDate))
+      + N( 3, deliveryNumber)
+      ;
+    checkAscii(n);
+    checkLength(n, 23);
+    return n;
+  }
+
   public static String header(int vuNr, int vuGstNr) {
     val h =
         A( 12, "KONTROLLE BV")
@@ -26,18 +43,18 @@ public class VwbRequestDTO extends DTO {
       LocalDate creationDate, int deliveryNumber, int recordCount,
       LocalDate previousDeliveryDate, Integer previousDeliveryNumber
   ) {
-    val h =
+    val f =
         A( 12, "KONTROLLE BN")
-            + A( 8, isoDate(creationDate))
-            + N( 4, deliveryNumber) // documentation says: type A
-            + N( 8, recordCount)    // documentation says: type A
-            + A( 8, isoDate(previousDeliveryDate))
-            + N( 4, previousDeliveryNumber) // documentation says: type A
-            + A(SIZE-12-8-4-8-8-4, "")  // filler spaces
-        ;
-    checkAscii(h);
-    checkLength(h, SIZE);
-    return h;
+      + A( 8, isoDate(creationDate))
+      + N( 4, deliveryNumber) // documentation says: type A
+      + N( 8, recordCount)    // documentation says: type A
+      + A( 8, isoDate(previousDeliveryDate))
+      + N( 4, previousDeliveryNumber) // documentation says: type A
+      + A(SIZE-12-8-4-8-8-4, "")  // filler spaces
+      ;
+    checkAscii(f);
+    checkLength(f, SIZE);
+    return f;
   }
 
 }

@@ -9,6 +9,13 @@ import org.junit.Test;
 public class VwbRequestDtoTest {
 
   @Test
+  public void testFilename() {
+    val today = LocalDate.of(2020,1,31);
+    val name = VwbRequestDTO.filename(1234, 567, today, 890);
+    assertThat(name).isEqualTo("dat."+"1234"+"567"+".kvb."+"2020"+"890");
+  }
+
+  @Test
   public void testHeader() {
     val header = VwbRequestDTO.header(1234, 567);
     assertThat(header.length()).isEqualTo(VwbRequestDTO.SIZE);
