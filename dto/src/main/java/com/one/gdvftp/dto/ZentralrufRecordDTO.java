@@ -87,7 +87,7 @@ public class ZentralrufRecordDTO {
   /**
    * Jahr der Erstzulassung
    */
-  @NonNull final private LocalDate zulassung;
+  final private LocalDate zulassung;
 
 
   public String toRecord() {
@@ -248,6 +248,7 @@ public class ZentralrufRecordDTO {
    * returns the year
    */
   private static int year(LocalDate date) {
+    if(date==null) return 0;
     val s = date.format(yearFormatter);
     val result = Integer.valueOf(s);
     return result;

@@ -127,8 +127,9 @@ public class ContractServiceImpl implements ContractService {
     val details = details(contract);
     val activeDetail = activeDetail(details(contract));
     val parameters = parameters(activeDetail);
+    val productTypes = productTypes(parameters, contract);
     val record = ZentralrufRecordDTO.builder()
-        .deckungsArt(deckungsArt(productType(parameters, contract)))
+        .deckungsArt(deckungsArt(productTypes))
         .vuNr(insuranceNumber)
         .vuGstNr(insuranceBranch)
         .vertr(contract.getSymassid())
@@ -139,14 +140,17 @@ public class ContractServiceImpl implements ContractService {
         .sb(deductibles(parameters, contract))
         .hsn(hsn(parameters, contract))
         .tsn(tsn(parameters, contract))
-        .zulassung(zulassung(parameters, contract))
+        .zulassung(
+            isSwitch(productTypes) ? null   // no value for switch contracts
+            : zulassung(parameters, contract)
+        )
         .build();
     return record;
   }
 
-  private String deckungsArt(List<ContractDetailParameter> productType) {
+  private String deckungsArt(List<ContractDetailParameter> productTypes) {
     // TODO: improve
-    val list = productType.stream()
+    val list = productTypes.stream()
         .map(cdp -> cdp.getProductParameter().getBindingFieldToSubmit()).collect(Collectors.toList());
     String art = list.stream().map(s -> s.substring(0,2)).collect(Collectors.joining());
     if(art.contains("KH"))
@@ -225,7 +229,7 @@ public class ContractServiceImpl implements ContractService {
     return result;
   }
 
-  private static List<ContractDetailParameter> productType(List<ContractDetailParameter> params, Contract contract) {
+  private static List<ContractDetailParameter> productTypes(List<ContractDetailParameter> params, Contract contract) {
     val result = parameters("productType", params, contract);
     return result;
   }
@@ -279,6 +283,16 @@ public class ContractServiceImpl implements ContractService {
       throw new ContractException("Can not parse firstRegistrationDateInsured: "+string+".", contract);
     }
   }
+
+  // The productTypes name must contain "Switch".
+  private boolean isSwitch(List<ContractDetailParameter> productTypes) {
+    val isSwitch = productTypes.stream().map((p -> p.getProductParameter().getName()))
+        .allMatch(name -> name.contains("Switch"));
+    if(isSwitch)
+      System.out.println("SWITCH");
+    return isSwitch;
+  }
+
 
   /**
    * Returns the largest 7 digit delivery number (including year) from the folder in S3.
