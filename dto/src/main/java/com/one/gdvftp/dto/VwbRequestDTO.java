@@ -1,11 +1,65 @@
 package com.one.gdvftp.dto;
 
 import java.time.LocalDate;
+import java.util.Arrays;
+import java.util.stream.IntStream;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.ToString;
 import lombok.val;
 
+
+@RequiredArgsConstructor
+@ToString
+@Getter
+@Builder
 public class VwbRequestDTO extends DTO {
 
+  /** Vierstellige Nummer des VU
+   *  ONE's insurance number 9496 */
+  final private int vuNr;
+
+  /** Nummer der VU-Geschäftsstelle
+   *  ONE's insurance number 001 */
+  final private int vuGstNr;
+
+
   static final int SIZE = 45; // 88
+
+  public String toRecord() {
+    val rec = ""
+        // 2 Satzart (6?)
+        // 2 Anfragegrund
+        // 1 Korrekturgrund
+      + modulo11(
+      N( 4, getVuNr())
+        +N( 3, getVuGstNr()))  // N8
+      + A(SIZE-8, "")  // filler spaces
+      ;
+    checkAscii(rec);
+    checkLength(rec, SIZE);
+    return rec;
+  }
+
+  // Adds a check digit to the end of a string.
+  // The string must contain 7 digits.
+  private String modulo11(String s) {
+    val factors = Arrays.asList(0,6,3,1,7,2,4);
+
+    if(s==null || s.length()!=factors.size())
+      throw new RuntimeException("String \""+s+"\n must have size "+factors.size());
+
+    val sum = IntStream.range(0,s.length()).map(i -> {
+      val digit = s.charAt(i)-'0';
+      val factor = factors.get(i);
+      return digit*factor;
+    }).sum();
+
+    val check = (sum%11)%10;
+    return s+check;
+  }
+
 
   public static String filename(int vuNr, int vuGstNr, LocalDate creationDate, int deliveryNumber) {
     val n =
@@ -27,9 +81,9 @@ public class VwbRequestDTO extends DTO {
   public static String header(int vuNr, int vuGstNr) {
     val h =
         A( 12, "KONTROLLE BV")
-      + A( 4, "8333") // Ziel-VU
-      + A( 3, "KVB")  // Ziel-Sachgebiet
-      + A( 1, "T")    // T or space
+      + A( 4, "8333")    // Ziel-VU
+      + A( 3, "KVB")     // Ziel-Sachgebiet
+      + A( 1, "T")       // T or space
       + N( 4, vuNr)      // Absender-VU
       + N( 3, vuGstNr)   // Absender-GS
       + A(SIZE-12-4-3-1-4-3, "")  // filler spaces

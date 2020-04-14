@@ -31,4 +31,17 @@ public class VwbRequestDtoTest {
     assertThat(footer).isEqualTo("KONTROLLE BN"+"20200131"+"0002"+"00000999"+"20200130"+"0001"
         +" ");
   }
+
+  @Test
+  public void testRecord() {
+    //val date = LocalDate.of(2021,12,30);
+    //val deductibles = MapUtil.mapOf(Seq.of("KH", "TK", "VK"), Seq.of(0, 2345, 6789));
+
+    val dto = new VwbRequestDTO (8333, 1);
+
+    val rec = dto.toRecord();
+    assertThat(rec).isEqualTo(
+        "8333"+"001"+"1"
+            +"                                     ");
+  }
 }
