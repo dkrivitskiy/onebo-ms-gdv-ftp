@@ -37,11 +37,11 @@ public class VwbRequestDtoTest {
     //val date = LocalDate.of(2021,12,30);
     //val deductibles = MapUtil.mapOf(Seq.of("KH", "TK", "VK"), Seq.of(0, 2345, 6789));
 
-    val dto = new VwbRequestDTO (8333, 1);
+    val dto = new VwbRequestDTO (8333, 1, "vsnr-abcdefghijklmno");
 
     val rec = dto.toRecord();
     assertThat(rec).isEqualTo(
-        "8333"+"001"+"1"
+        "8333"+"001"+"1"+"vsnr-abcdefghijklmno"
             +"                                     ");
   }
 }

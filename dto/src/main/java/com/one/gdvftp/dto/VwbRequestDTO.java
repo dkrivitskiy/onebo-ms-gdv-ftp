@@ -24,18 +24,24 @@ public class VwbRequestDTO extends DTO {
    *  ONE's insurance number 001 */
   final private int vuGstNr;
 
+  /** Versicherungsscheinnummer
+   *  contractNumber
+   */
+  final private String vsNr;
 
-  static final int SIZE = 45; // 88
+
+  static final int SIZE = 65; // 88
 
   public String toRecord() {
     val rec = ""
         // 2 Satzart (6?)
         // 2 Anfragegrund
         // 1 Korrekturgrund
-      + modulo11(
+      +modulo11(   // N8
       N( 4, getVuNr())
-        +N( 3, getVuGstNr()))  // N8
-      + A(SIZE-8, "")  // filler spaces
+        +N( 3, getVuGstNr()))
+      +A(20, getVsNr())
+      +A(SIZE-8-20, "")  // filler spaces
       ;
     checkAscii(rec);
     checkLength(rec, SIZE);
@@ -63,15 +69,15 @@ public class VwbRequestDTO extends DTO {
 
   public static String filename(int vuNr, int vuGstNr, LocalDate creationDate, int deliveryNumber) {
     val n =
-        A( 3, "dat")
-      + A( 1, ".")
-      + N( 4, vuNr)
-      + N( 3, vuGstNr)
-      + A( 1, ".")
-      + A( 3, "kvb")     // Sachgebiet
-      + A( 1, ".")
-      + N( 4, year(creationDate))
-      + N( 3, deliveryNumber)
+       A( 3, "dat")
+      +A( 1, ".")
+      +N( 4, vuNr)
+      +N( 3, vuGstNr)
+      +A( 1, ".")
+      +A( 3, "kvb")     // Sachgebiet
+      +A( 1, ".")
+      +N( 4, year(creationDate))
+      +N( 3, deliveryNumber)
       ;
     checkAscii(n);
     checkLength(n, 23);
@@ -80,13 +86,13 @@ public class VwbRequestDTO extends DTO {
 
   public static String header(int vuNr, int vuGstNr) {
     val h =
-        A( 12, "KONTROLLE BV")
-      + A( 4, "8333")    // Ziel-VU
-      + A( 3, "KVB")     // Ziel-Sachgebiet
-      + A( 1, "T")       // T or space
-      + N( 4, vuNr)      // Absender-VU
-      + N( 3, vuGstNr)   // Absender-GS
-      + A(SIZE-12-4-3-1-4-3, "")  // filler spaces
+       A( 12, "KONTROLLE BV")
+      +A( 4, "8333")    // Ziel-VU
+      +A( 3, "KVB")     // Ziel-Sachgebiet
+      +A( 1, "T")       // T or space
+      +N( 4, vuNr)      // Absender-VU
+      +N( 3, vuGstNr)   // Absender-GS
+      +A(SIZE-12-4-3-1-4-3, "")  // filler spaces
       ;
     checkAscii(h);
     checkLength(h, SIZE);
@@ -98,17 +104,16 @@ public class VwbRequestDTO extends DTO {
       LocalDate previousDeliveryDate, Integer previousDeliveryNumber
   ) {
     val f =
-        A( 12, "KONTROLLE BN")
-      + A( 8, isoDate(creationDate))
-      + N( 4, deliveryNumber) // documentation says: type A
-      + N( 8, recordCount)    // documentation says: type A
-      + A( 8, isoDate(previousDeliveryDate))
-      + N( 4, previousDeliveryNumber) // documentation says: type A
-      + A(SIZE-12-8-4-8-8-4, "")  // filler spaces
+       A( 12, "KONTROLLE BN")
+      +A( 8, isoDate(creationDate))
+      +N( 4, deliveryNumber) // documentation says: type A
+      +N( 8, recordCount)    // documentation says: type A
+      +A( 8, isoDate(previousDeliveryDate))
+      +N( 4, previousDeliveryNumber) // documentation says: type A
+      +A(SIZE-12-8-4-8-8-4, "")  // filler spaces
       ;
     checkAscii(f);
     checkLength(f, SIZE);
     return f;
   }
-
 }
