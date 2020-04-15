@@ -1,12 +1,25 @@
 package com.one.gdvftp.dto;
 
 import java.nio.charset.Charset;
+import java.nio.charset.CharsetEncoder;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
+import lombok.NonNull;
 import lombok.val;
 
-public class DTO {
+
+public class Encoder {
+
+  // Be aware, that CharsetEncoder is not threadsafe!
+  @NonNull private final CharsetEncoder encoder;
+
+  @NonNull private final Charset charset;
+
+  Encoder(Charset charset) {
+    this.charset = charset;
+    encoder = charset.newEncoder();
+  }
 
   /**
    * Returns a numeric value as a String of the specified size
@@ -27,31 +40,25 @@ public class DTO {
   /**
    * Returns an alphanumeric value as a String of the specified size
    * filled with spaces on the right side.
-   * Checks for pure ASCII.
+   * Checks for character set.
    */
-  protected static String A(int size, String s) {
+  protected String A(int size, String s) {
     if(s==null) return repeat(' ', size);
-    checkAscii(s);
+    checkCharset(s);
     val len = checkLength(s, size);
     if(len==size) return s;
     // len<size
     return s+repeat(' ', size-len);
   }
 
-  protected static String repeat(char c, int l) {
+  private static String repeat(char c, int l) {
     val chars = new char[l];
     Arrays.fill(chars, c);
     return String.valueOf(chars);
   }
 
-  protected static synchronized boolean isASCII(String s) { // synchronized because encoder is not threadsafe
-    // CharsetEncoder is not threadsafe!
-    val encoder = Charset.forName("US-ASCII").newEncoder();
-    return encoder.canEncode(s);
-  }
-
-  protected static void checkAscii(String s) {
-    if(!isASCII(s)) throw new RuntimeException("String contains non ASCII characters: \""+s+"\"");
+  protected synchronized void checkCharset(String s) { // synchronized because encoder is not threadsafe
+    if(!encoder.canEncode(s)) throw new RuntimeException("String contains non "+charset.name()+" characters: \""+s+"\"");
   }
 
   protected static int checkLength(String s, int size) {
@@ -61,7 +68,7 @@ public class DTO {
   }
 
   // is threadsafe
-  protected static final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("ddMMyyyy");
+  private static final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("ddMMyyyy");
   /**
    * returns a date as an int with format ddMMyyyy
    */
@@ -73,7 +80,7 @@ public class DTO {
   }
 
   // is threadsafe
-  protected static final DateTimeFormatter isoDateFormatter = DateTimeFormatter.ofPattern("yyyyMMdd");
+  private static final DateTimeFormatter isoDateFormatter = DateTimeFormatter.ofPattern("yyyyMMdd");
   /**
    * returns a date as a String with format yyyyMMdd
    */
@@ -84,7 +91,7 @@ public class DTO {
   }
 
   // is threadsafe
-  protected static final DateTimeFormatter yearFormatter = DateTimeFormatter.ofPattern("yyyy");
+  private static final DateTimeFormatter yearFormatter = DateTimeFormatter.ofPattern("yyyy");
   /**
    * returns the year
    */
@@ -94,6 +101,4 @@ public class DTO {
     val result = Integer.valueOf(s);
     return result;
   }
-
-
 }

@@ -7,6 +7,7 @@ import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
 
 import com.one.gdvftp.dto.ZentralrufRecordDTO;
+import com.one.gdvftp.dto.ZentralrufRecordEncoder;
 import com.one.gdvftp.entity.Contract;
 import com.one.gdvftp.entity.ContractDetail;
 import com.one.gdvftp.entity.ContractDetailParameter;
@@ -67,6 +68,7 @@ public class ContractServiceImpl implements ContractService {
   public int writeZentralrufRecords(LocalDate today, String foldername, List<Contract> contracts) {
     int writtenCount = 0;
     int errorCount = 0;
+    val encoder = new ZentralrufRecordEncoder();
 
     LocalDate previousDeliveryDate = today.minusDays(1);  // TODO: real implementation
     Integer previousDeliveryNumber = null;
@@ -78,23 +80,20 @@ public class ContractServiceImpl implements ContractService {
       deliveryNumber = previousDeliveryNumber + 1;
       // TODO: start with deliveryNumber=1 if the year changed
     }
-    val filename = ZentralrufRecordDTO.filename(insuranceNumber, insuranceBranch, today, deliveryNumber);
+    val filename = encoder.filename(insuranceNumber, insuranceBranch, today, deliveryNumber);
 
     try {
       val file = File.createTempFile(filename, ".tmp");
 
       // Writing to tempfile
       try (val out = new FileWriter(file)) {
-        val header = ZentralrufRecordDTO.header(insuranceNumber, insuranceBranch);
+        val header = encoder.header(insuranceNumber, insuranceBranch);
         out.write(header); out.write("\n");
 
         for (Contract c : contracts) {
-//          if(c.getName().equals("CON-0310861")) {
-//            System.err.println(c);  // no assistance
-//          }
           try {
             val dto = zentralrufRecordDTO(c);
-            val record = dto.toRecord();
+            val record = encoder.toRecord(dto);
             out.write(record); out.write("\n");
             writtenCount++;
           } catch (ContractException e) {
@@ -107,7 +106,7 @@ public class ContractServiceImpl implements ContractService {
         }
         log.info("error count: "+errorCount);
 
-        val footer = ZentralrufRecordDTO.footer(
+        val footer = encoder.footer(
             today, deliveryNumber, writtenCount,
             previousDeliveryDate, previousDeliveryNumber);
         out.write(footer); out.write("\n");

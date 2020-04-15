@@ -15,8 +15,8 @@ public class ZentralrufRecordDtoTest {
 
   @Test
   public void testHeader() {
-    val header = ZentralrufRecordDTO.header(1234, 567);
-    assertThat(header.length()).isEqualTo(ZentralrufRecordDTO.SIZE);
+    val header = new ZentralrufRecordEncoder().header(1234, 567);
+    assertThat(header.length()).isEqualTo(ZentralrufRecordEncoder.SIZE);
     assertThat(header).isEqualTo("KONTROLLE BV"+"8333"+"AZA"+" "+"1234"+"567"+"   "
         +"                                                          ");
   }
@@ -24,8 +24,8 @@ public class ZentralrufRecordDtoTest {
   @Test
   public void testFooter() {
     val today = LocalDate.of(2020,1,31);
-    val footer = ZentralrufRecordDTO.footer(today, 2, 999, today.minusDays(1), 1);
-    assertThat(footer.length()).isEqualTo(ZentralrufRecordDTO.SIZE);
+    val footer = new ZentralrufRecordEncoder().footer(today, 2, 999, today.minusDays(1), 1);
+    assertThat(footer.length()).isEqualTo(ZentralrufRecordEncoder.SIZE);
     assertThat(footer).isEqualTo("KONTROLLE BN"+"20200131"+"0002"+"00000999"+"20200130"+"0001"+"   "
         +"                                         ");
   }
@@ -39,7 +39,7 @@ public class ZentralrufRecordDtoTest {
         123,"vertr1234567890","fakz12345678", date.minusDays(10), date, 12,
         "VK", true, deductibles , 4321, "tsn", date.minusDays(91));
 
-    val rec = dto.toRecord();
+    val rec = new ZentralrufRecordEncoder().toRecord(dto);
     assertThat(rec).isEqualTo(
         "0123"+"vertr1234567890     "+"fakz12345678"+"000"+"20122021"+"30122021"+"012"+
         "00000000"+"03"+"1"+"2345"+"6789"+"4321"+"tsn"+"2021");
@@ -54,7 +54,7 @@ public class ZentralrufRecordDtoTest {
         123,"vertr1234567890","fakz12345678", date.minusDays(10), date, 12,
         "TK", true, deductibles, 4321, "tsn", date.minusDays(91));
 
-    val rec = dto.toRecord();
+    val rec = new ZentralrufRecordEncoder().toRecord(dto);
     assertThat(rec).isEqualTo(
         "0123"+"vertr1234567890     "+"fakz12345678"+"000"+"20122021"+"30122021"+"012"+
             "00000000"+"02"+"1"+"2345"+"0000"+"4321"+"tsn"+"2021");
@@ -68,7 +68,7 @@ public class ZentralrufRecordDtoTest {
         123,"vertr1234567890","fakz12345678", date.minusDays(10), date, 12,
         "KH", true, Collections.EMPTY_MAP, 4321, "tsn", date.minusDays(91));
 
-    val rec = dto.toRecord();
+    val rec = new ZentralrufRecordEncoder().toRecord(dto);
     assertThat(rec).isEqualTo(
         "0123"+"vertr1234567890     "+"fakz12345678"+"000"+"20122021"+"30122021"+"012"+
             "00000000"+"01"+"1"+"0000"+"0000"+"4321"+"tsn"+"2021");

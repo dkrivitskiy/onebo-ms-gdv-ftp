@@ -7,15 +7,12 @@ import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
-import lombok.val;
 
 @RequiredArgsConstructor
 @ToString
 @Getter
 @Builder
-public class ZentralrufRecordDTO extends DTO {
-
-  static final int SIZE = 88;
+public class ZentralrufRecordDTO {
 
   /** Vierstellige Nummer des VU
    *  ONE's insurance number 9496 */
@@ -83,91 +80,5 @@ public class ZentralrufRecordDTO extends DTO {
    * Jahr der Erstzulassung
    */
   final private LocalDate zulassung;
-
-
-  public String toRecord() {
-    val rec =
-        N( 4, getVuNr())
-      + A(20, getVertr())
-      + A(12, getFaKz())
-      + N( 3, getWagN())
-      + N( 8, date(getFavDatAb()))
-      + N( 8, date(getFavDatBis()))
-      + N( 3, getVuGstNr())
-      + N( 8, getAgent())
-      + N( 2, deckungsart(getDeckungsArt()))
-      + N( 1, serviceDeckung(isSchutzbrief()))
-      + N( 4, getSb().get("TK"))
-      + N( 4, getSb().get("VK"))
-      + N( 4, getHsn())
-      + A( 3, getTsn())
-      + N( 4, year(getZulassung()))
-      ;
-    checkAscii(rec);
-    checkLength(rec, SIZE);
-    return rec;
-  }
-
-  public static String filename(int vuNr, int vuGstNr, LocalDate creationDate, int deliveryNumber) {
-    val n =
-        A( 3, "dat")
-      + A( 1, ".")
-      + N( 4, vuNr)
-      + N( 3, vuGstNr)
-      + A( 1, ".")
-      + A( 3, "aza")     // Sachgebiet
-      + A( 1, ".")
-      + N( 4, year(creationDate))
-      + N( 3, deliveryNumber)
-      ;
-    checkAscii(n);
-    checkLength(n, 23);
-    return n;
-  }
-
-  public static String header(int vuNr, int vuGstNr) {
-    val h =
-          A( 12, "KONTROLLE BV")
-        + A( 4, "8333") // Ziel-VU
-        + A( 3, "AZA")  // Ziel-Sachgebiet
-        + A( 1, " ")    // K or H or space
-        + N( 4, vuNr)      // Absender-VU; documentation says: type A
-        + N( 3, vuGstNr)   // Absender-GS; documentation says: type A
-        + A( 3, "")     // Information zum Sachgebiet
-        + A(SIZE-12-4-3-1-4-3-3, "")  // filler spaces
-        ;
-    checkAscii(h);
-    checkLength(h, SIZE);
-    return h;
-  }
-
-  public static String footer(
-      LocalDate creationDate, int deliveryNumber, int recordCount,
-      LocalDate previousDeliveryDate, Integer previousDeliveryNumber
-  ) {
-    val f =
-          A( 12, "KONTROLLE BN")
-        + A( 8, isoDate(creationDate))
-        + N( 4, deliveryNumber) // documentation says: type A
-        + N( 8, recordCount)    // documentation says: type A
-        + A( 8, isoDate(previousDeliveryDate))
-        + N( 4, previousDeliveryNumber) // documentation says: type A
-        + A( 3, "")     // Information zum Sachgebiet
-        + A(SIZE-12-8-4-8-8-4-3, "")  // filler spaces
-        ;
-    checkAscii(f);
-    checkLength(f, SIZE);
-    return f;
-  }
-
-  private static int serviceDeckung(boolean schutzbrief) {
-    return schutzbrief ? 1 : 0;
-  }
-
-  private static int deckungsart(String art) {
-    return "VK".equals(art) ? 3
-         : "TK".equals(art) ? 2
-         : 1; // "KH"
-  }
 
 }
