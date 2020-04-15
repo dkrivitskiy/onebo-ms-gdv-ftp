@@ -35,12 +35,20 @@ public class VwbRequestDTO extends DTO {
    *  SF: Initial valid Date From */
   final private LocalDate versichBeginn;
 
-  /** Anredeschlüssel (0 or 1)
+  /** Versicherungsnehmer Anredeschlüssel (0 or 1)
    * SF: sex */
   final private char anrede;
 
+  /** Versicherungsnehmer Namenszeile 1 + 2
+   * SF: Last Name */
+  final private String nachName;
 
-  static final int SIZE = 58; // 88
+  /** Versicherungsnehmer Namenszeile 3
+   * SF: First Name */
+  final private String vorName;
+
+
+  static final int SIZE = 133; // 88
 
   public String toRecord() {
     val rec = A( 2,"10") // Satzart 10
@@ -53,7 +61,9 @@ public class VwbRequestDTO extends DTO {
       +A(17, getFin())
       +N( 8, date(getVersichBeginn()))
       +getAnrede()  // A1
-      +A(SIZE-2-8-20-2-17-8-1, "")  // filler spaces
+      +A( 30+25, getNachName())
+      +A(20, getVorName())
+      +A(SIZE-2-8-20-2-17-8-1-30-25-20, "")  // filler spaces
       ;
     checkAscii(rec);
     checkLength(rec, SIZE);
