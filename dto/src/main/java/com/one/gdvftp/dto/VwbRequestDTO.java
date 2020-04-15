@@ -37,7 +37,7 @@ public class VwbRequestDTO {
 
   /** Versicherungsnehmer Anredeschlüssel (0 or 1)
    * SF: sex */
-  final private char anrede;
+  final private Character anrede;
 
   /** Versicherungsnehmer Namenszeile 1 + 2
    * SF: Last Name */
@@ -62,5 +62,29 @@ public class VwbRequestDTO {
   /** Versicherungsnehmer Ort
    */
   final private String ort;
+
+  /** Vierstellige Nummer des Vorversicherers
+   *   */
+  final private int vorVuNr;
+
+  /** Nummer der Geschäftsstelle des Vorversicherers
+   *   */
+  final private int vorVuGstNr;
+
+  /** Versicherungsscheinnummer beim Vorversicherer
+   *   */
+  final private String vorVsNr;
+
+  /** AKZ beim Vorversicherer
+   *   */
+  final private String vorAkz;
+
+  /** Bescheinigung gem. Par. 5 PflVersG wurde vorgelegt
+   */
+  final private Character bescheinigung;
+
+  /** n-te Erinnerung
+   * */
+  final private Integer erinnerung;
 
 }

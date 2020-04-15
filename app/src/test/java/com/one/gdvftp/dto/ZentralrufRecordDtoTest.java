@@ -16,7 +16,8 @@ public class ZentralrufRecordDtoTest {
     val header = new ZentralrufRecordEncoder().header(1234, 567);
     assertThat(header.length()).isEqualTo(ZentralrufRecordEncoder.SIZE);
     assertThat(header).isEqualTo("KONTROLLE BV"+"8333"+"AZA"+" "+"1234"+"567"+"   "
-        +"                                                          ");
+        +Encoder.repeat(' ', 58)
+    );
   }
 
   @Test
@@ -25,7 +26,8 @@ public class ZentralrufRecordDtoTest {
     val footer = new ZentralrufRecordEncoder().footer(today, 2, 999, today.minusDays(1), 1);
     assertThat(footer.length()).isEqualTo(ZentralrufRecordEncoder.SIZE);
     assertThat(footer).isEqualTo("KONTROLLE BN"+"20200131"+"0002"+"00000999"+"20200130"+"0001"+"   "
-        +"                                         ");
+        +Encoder.repeat(' ', 41)
+    );
   }
 
   @Test

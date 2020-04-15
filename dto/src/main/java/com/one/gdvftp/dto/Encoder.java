@@ -59,7 +59,18 @@ abstract public class Encoder<DTO> {
     return s+repeat(' ', size-len);
   }
 
-  private static String repeat(char c, int l) {
+  /**
+   * Returns a charecter
+   * filled with space, if null
+   * Checks for character set.
+   */
+  protected Character Z(Character c) {
+    if(c==null) return ' ';
+    checkCharset(""+c);
+    return c;
+  }
+
+  static String repeat(char c, int l) {
     val chars = new char[l];
     Arrays.fill(chars, c);
     return String.valueOf(chars);

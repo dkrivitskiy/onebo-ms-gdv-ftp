@@ -8,7 +8,7 @@ import lombok.val;
 
 public class VwbRequestEncoder extends Encoder<VwbRequestDTO> {
 
-  static final int SIZE = 197; // 255
+  static final int SIZE = 255;
 
   VwbRequestEncoder() {
     super(StandardCharsets.ISO_8859_1);
@@ -25,14 +25,20 @@ public class VwbRequestEncoder extends Encoder<VwbRequestDTO> {
         +N( 2, 1) // Anfragegrund (01 = Versichererwechsel)
         +A(17, d.getFin())
         +N( 8, date(d.getVersichBeginn()))
-        +d.getAnrede()  // A1
+        +Z(d.getAnrede())
         +A( 30+25, d.getNachName())
         +A(20, d.getVorName())
         +A(30, d.getStraße())
         +A(3, d.getLdKz())
         +A(6, d.getPlz())
         +A(25, d.getOrt())
-        +A(SIZE-2-8-20-2-17-8-1-30-25-20-30-3-6-25, "")  // filler spaces
+        +modulo11(   // N8
+        N( 4, d.getVorVuNr())
+          +N( 3, d.getVorVuGstNr()))
+        +A(20, d.getVorVsNr())
+        +A(10, d.getVorAkz())
+        +Z(d.getBescheinigung())
+        +N(1, d.getErinnerung())
         ;
     checkCharset(rec);
     checkLength(rec, SIZE);
