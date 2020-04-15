@@ -24,27 +24,31 @@ public class VwbRequestDTO extends DTO {
   final private int vuGstNr;
 
   /** Versicherungsscheinnummer
-   *  contractNumber */
+   *  SF: contractNumber */
   final private String vsNr;
 
+  /** Fahrzeugidentifizierungsnummer
+   *  SF: VIN */
+  final private String fin;
+
   /** Versicherungsbeginn
-   *  Initial valid Date From */
+   *  SF: Initial valid Date From */
   final private LocalDate versichBeginn;
 
 
-  static final int SIZE = 36; // 88
+  static final int SIZE = 57; // 88
 
   public String toRecord() {
-    val rec = ""
-        // 2 Satzart (6?)
-        // 2 Anfragegrund
-        // 1 Korrekturgrund
+    val rec = A( 2,"10") // Satzart 10
+      //+A(18, "") // Verbandsvorgangsnummer TODO
       +modulo11(   // N8
       N( 4, getVuNr())
         +N( 3, getVuGstNr()))
       +A(20, getVsNr())
+      +N( 2, 1) // Anfragegrund (01 = Versichererwechsel)
+      +A(17, getFin())
       +N( 8, date(getVersichBeginn()))
-      +A(SIZE-8-20-8, "")  // filler spaces
+      +A(SIZE-2-8-20-2-17-8, "")  // filler spaces
       ;
     checkAscii(rec);
     checkLength(rec, SIZE);
