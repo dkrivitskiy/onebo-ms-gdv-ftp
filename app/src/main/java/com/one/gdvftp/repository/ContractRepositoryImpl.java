@@ -22,6 +22,32 @@ public class ContractRepositoryImpl implements ContractRepositoryExtension {
     private final @NonNull EntityManager em;
 
     @Override
+    public List<Contract> findContractsForVwbRequest(int limit) {
+        val builder = em.getCriteriaBuilder();
+        val query = builder.createQuery(Contract.class);
+        val contract = query.from(Contract.class);
+        val details = contract.joinList("details", JoinType.LEFT);
+        val parameters = details.joinList("parameters", JoinType.LEFT);
+
+        query.where(
+            builder.isFalse(contract.get("deleted"))
+           ,builder.equal(contract.get("statusOne"), "Active")
+           ,builder.equal(contract.get("country").get("isoCountryCode"), "DE")
+           ,builder.equal(contract.get("productGroup").get("name"), "Motor")
+           ,builder.isFalse(details.get("deleted"))
+           ,builder.equal(details.get("status"), "ACTIVE")
+           ,builder.equal(parameters.get("productParameter").get("apiKey"), "car.product-type")
+           ,builder.like(parameters.get("productParameter").get("name"), "%Switch%")
+            // TODO: Portfolio Owner is not equal to Check24
+            // TODO: VWB Versichererwechsel Status is equal to Not Requested
+        );
+
+        val result = em.createQuery(query).setMaxResults(limit).getResultList();
+
+        return result;
+    }
+
+    @Override
     @SuppressWarnings("UnnecessaryLocalVariable")
     public List<Contract> findContractsForZentralruf(LocalDate today, int limit) {
 
@@ -29,7 +55,7 @@ public class ContractRepositoryImpl implements ContractRepositoryExtension {
         val query = builder.createQuery(Contract.class);
         val contract = query.from(Contract.class);
 
-        where(contract, query, builder, today);
+        whereContractsForZentralruf(contract, query, builder, today);
         val result = em.createQuery(query).setMaxResults(limit).getResultList();
 
         return result;
@@ -44,13 +70,14 @@ public class ContractRepositoryImpl implements ContractRepositoryExtension {
         val contract = query.from(Contract.class);
         val count = query.select(builder.count(contract));
 
-        where(contract, query, builder, today);
+        whereContractsForZentralruf
+            (contract, query, builder, today);
         val result = em.createQuery(query).getSingleResult();
 
         return result;
     }
 
-    private <T> void where(Root<Contract> contract, CriteriaQuery<T> query, CriteriaBuilder builder, LocalDate today) {
+    private <T> void whereContractsForZentralruf(Root<Contract> contract, CriteriaQuery<T> query, CriteriaBuilder builder, LocalDate today) {
 
         val details = contract.joinList("details", JoinType.LEFT);
         query.where(

@@ -34,7 +34,7 @@ public class ContractRepositoryIT {
 
   }
 
-  @Test @Ignore // TODO: put at least one matching contract in the dev database
+  @Test
   public void testFindContractsForZentralruf() {
 
     val zentralrufContractsTop10 = repo.findContractsForZentralruf(LocalDate.of(1970,1,1), 10);
@@ -45,6 +45,34 @@ public class ContractRepositoryIT {
       assertThat(c.getDeleted()).isFalse();
       assertThat(c.getCountry().getIsoCountryCode()).isEqualTo("DE");
       assertThat(c.getProductGroup().getName()).isEqualTo("Motor");
+    });
+
+  }
+
+  @Test
+  public void testFindContractsForVwbRequest() {
+
+    val someContracts = repo.findContractsForVwbRequest(10);
+
+    assertThat(someContracts).isNotEmpty();
+
+    someContracts.forEach(c -> {
+      assertThat(c.getDeleted()).isFalse();
+      assertThat(c.getStatusOne()).isEqualTo("Active");
+      assertThat(c.getCountry().getIsoCountryCode()).isEqualTo("DE");
+      assertThat(c.getProductGroup().getName()).isEqualTo("Motor");
+      val details = c.getDetails();
+      assertThat(details).isNotEmpty();
+      assertThat(details.size()).isEqualTo(1);
+      details.forEach(d-> {
+        assertThat(d.getDeleted()).isFalse();
+        assertThat(d.getStatus()).isEqualTo("ACTIVE");
+        val params = d.getParameters();
+        assertThat(params).isNotEmpty();
+        boolean isSwitch = params.stream().map(p -> p.getProductParameter())
+            .anyMatch(pp->"car.product-type".equals(pp.getApiKey()) && pp.getName().contains("Switch"));
+        assertThat(isSwitch).isTrue();
+      });
     });
 
   }

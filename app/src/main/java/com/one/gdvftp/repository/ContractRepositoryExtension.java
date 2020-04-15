@@ -9,4 +9,5 @@ public interface ContractRepositoryExtension {
 
     Long countContractsForZentralruf(LocalDate today);
     List<Contract> findContractsForZentralruf(LocalDate today, int limit);
+    List<Contract> findContractsForVwbRequest(int limit);
 }
