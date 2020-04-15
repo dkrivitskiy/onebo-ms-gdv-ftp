@@ -5,7 +5,7 @@ import java.time.LocalDate;
 import lombok.val;
 
 
-public class ZentralrufRecordEncoder extends Encoder {
+public class ZentralrufRecordEncoder extends Encoder<ZentralrufRecordDTO> {
 
   static final int SIZE = 88;
 
@@ -13,7 +13,8 @@ public class ZentralrufRecordEncoder extends Encoder {
     super(StandardCharsets.US_ASCII);
   }
 
-  public String toRecord(ZentralrufRecordDTO d) {
+  @Override
+  public String encode(ZentralrufRecordDTO d) {
     val rec =
         N( 4, d.getVuNr())
             + A(20, d.getVertr())
@@ -36,6 +37,7 @@ public class ZentralrufRecordEncoder extends Encoder {
     return rec;
   }
 
+  @Override
   public String filename(int vuNr, int vuGstNr, LocalDate creationDate, int deliveryNumber) {
     val n =
         A( 3, "dat")
@@ -53,6 +55,7 @@ public class ZentralrufRecordEncoder extends Encoder {
     return n;
   }
 
+  @Override
   public String header(int vuNr, int vuGstNr) {
     val h =
         A( 12, "KONTROLLE BV")
@@ -69,6 +72,7 @@ public class ZentralrufRecordEncoder extends Encoder {
     return h;
   }
 
+  @Override
   public String footer(
       LocalDate creationDate, int deliveryNumber, int recordCount,
       LocalDate previousDeliveryDate, Integer previousDeliveryNumber

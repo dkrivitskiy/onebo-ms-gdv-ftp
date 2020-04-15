@@ -6,7 +6,7 @@ import java.util.Arrays;
 import java.util.stream.IntStream;
 import lombok.val;
 
-public class VwbRequestEncoder extends Encoder {
+public class VwbRequestEncoder extends Encoder<VwbRequestDTO> {
 
   static final int SIZE = 197; // 255
 
@@ -14,7 +14,8 @@ public class VwbRequestEncoder extends Encoder {
     super(StandardCharsets.ISO_8859_1);
   }
 
-  public String toRecord(VwbRequestDTO d) {
+  @Override
+  public String encode(VwbRequestDTO d) {
     val rec = A( 2,"10") // Satzart 10
         //+A(18, "") // Verbandsvorgangsnummer TODO
         +modulo11(   // N8
@@ -56,7 +57,7 @@ public class VwbRequestEncoder extends Encoder {
     return s+check;
   }
 
-
+  @Override
   public String filename(int vuNr, int vuGstNr, LocalDate creationDate, int deliveryNumber) {
     val n =
         A( 3, "dat")
@@ -74,6 +75,7 @@ public class VwbRequestEncoder extends Encoder {
     return n;
   }
 
+  @Override
   public String header(int vuNr, int vuGstNr) {
     val h =
         A( 12, "KONTROLLE BV")
@@ -89,6 +91,7 @@ public class VwbRequestEncoder extends Encoder {
     return h;
   }
 
+  @Override
   public String footer(
       LocalDate creationDate, int deliveryNumber, int recordCount,
       LocalDate previousDeliveryDate, Integer previousDeliveryNumber

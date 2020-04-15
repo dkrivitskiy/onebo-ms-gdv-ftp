@@ -9,7 +9,15 @@ import lombok.NonNull;
 import lombok.val;
 
 
-public class Encoder {
+abstract public class Encoder<DTO> {
+
+  abstract public String encode(DTO d);
+  abstract public String filename(int vuNr, int vuGstNr, LocalDate creationDate, int deliveryNumber);
+  abstract public String header(int vuNr, int vuGstNr);
+  abstract public String footer(
+      LocalDate creationDate, int deliveryNumber, int recordCount,
+      LocalDate previousDeliveryDate, Integer previousDeliveryNumber
+  );
 
   // Be aware, that CharsetEncoder is not threadsafe!
   @NonNull private final CharsetEncoder encoder;
@@ -75,7 +83,7 @@ public class Encoder {
   protected static int date(LocalDate date) {
     if(date==null) return 0;
     val s = date.format(dateFormatter);
-    val result = Integer.valueOf(s);
+    val result = Integer.valueOf(s).intValue();
     return result;
   }
 
@@ -98,7 +106,7 @@ public class Encoder {
   protected static int year(LocalDate date) {
     if(date==null) return 0;
     val s = date.format(yearFormatter);
-    val result = Integer.valueOf(s);
+    val result = Integer.valueOf(s).intValue();
     return result;
   }
 }

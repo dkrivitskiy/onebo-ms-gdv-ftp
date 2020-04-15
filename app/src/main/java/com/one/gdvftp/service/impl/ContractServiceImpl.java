@@ -93,7 +93,7 @@ public class ContractServiceImpl implements ContractService {
         for (Contract c : contracts) {
           try {
             val dto = zentralrufRecordDTO(c);
-            val record = encoder.toRecord(dto);
+            val record = encoder.encode(dto);
             out.write(record); out.write("\n");
             writtenCount++;
           } catch (ContractException e) {
