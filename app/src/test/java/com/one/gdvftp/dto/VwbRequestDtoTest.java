@@ -37,12 +37,13 @@ public class VwbRequestDtoTest {
     val date = LocalDate.of(2020,1,31);
 
     val dto = new VwbRequestDTO (8333, 1, "vsnr-abcdefghijklmno", "fin-abcdefghijklm", date,
-        '1', "N", "V");
+        '1', "N", "V", "Straße", "LdKz", "PLZ", "ORT");
 
     val rec = dto.toRecord();
     assertThat(rec).isEqualTo(
         "10"+"8333"+"001"+"1"+"vsnr-abcdefghijklmno"+"01"+"fin-abcdefghijklm"+"31012020"
             +"1"+"N                                                      "+"V                   "
+            +"Straße"+"LdKz"+"PLZ"+"ORT"
             +"");
   }
 }

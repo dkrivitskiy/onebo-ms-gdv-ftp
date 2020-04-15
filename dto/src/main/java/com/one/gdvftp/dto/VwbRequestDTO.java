@@ -47,8 +47,24 @@ public class VwbRequestDTO extends DTO {
    * SF: First Name */
   final private String vorName;
 
+  /** Versicherungsnehmer Straße
+   */
+  final private String straße;
 
-  static final int SIZE = 133; // 88
+  /** Versicherungsnehmer LdKz
+   */
+  final private String ldKz;
+
+  /** Versicherungsnehmer PLZ
+   */
+  final private String plz;
+
+  /** Versicherungsnehmer Ort
+   */
+  final private String ort;
+
+
+  static final int SIZE = 197; // 88
 
   public String toRecord() {
     val rec = A( 2,"10") // Satzart 10
@@ -63,7 +79,11 @@ public class VwbRequestDTO extends DTO {
       +getAnrede()  // A1
       +A( 30+25, getNachName())
       +A(20, getVorName())
-      +A(SIZE-2-8-20-2-17-8-1-30-25-20, "")  // filler spaces
+      +A(30, getStraße())
+      +A(3, getLdKz())
+      +A(6, getPlz())
+      +A(25, getOrt())
+      +A(SIZE-2-8-20-2-17-8-1-30-25-20-30-3-6-25, "")  // filler spaces
       ;
     checkAscii(rec);
     checkLength(rec, SIZE);
