@@ -5,12 +5,11 @@ import java.util.Arrays;
 import java.util.stream.IntStream;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 import lombok.val;
 
 
-@RequiredArgsConstructor
+//@RequiredArgsConstructor
 @ToString
 @Getter
 @Builder
@@ -25,12 +24,15 @@ public class VwbRequestDTO extends DTO {
   final private int vuGstNr;
 
   /** Versicherungsscheinnummer
-   *  contractNumber
-   */
+   *  contractNumber */
   final private String vsNr;
 
+  /** Versicherungsbeginn
+   *  Initial valid Date From */
+  final private LocalDate versichBeginn;
 
-  static final int SIZE = 65; // 88
+
+  static final int SIZE = 36; // 88
 
   public String toRecord() {
     val rec = ""
@@ -41,7 +43,8 @@ public class VwbRequestDTO extends DTO {
       N( 4, getVuNr())
         +N( 3, getVuGstNr()))
       +A(20, getVsNr())
-      +A(SIZE-8-20, "")  // filler spaces
+      +N( 8, date(getVersichBeginn()))
+      +A(SIZE-8-20-8, "")  // filler spaces
       ;
     checkAscii(rec);
     checkLength(rec, SIZE);
