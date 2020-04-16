@@ -338,7 +338,7 @@ public class ContractServiceImpl implements ContractService {
   // The productTypes name must contain "Switch".
   private boolean isSwitch(List<ContractDetailParameter> productTypes) {
     val isSwitch = productTypes.stream().map((p -> p.getProductParameter().getName()))
-        .allMatch(name -> name.contains("Switch"));
+        .allMatch(name -> name!=null && name.contains("Switch"));
     return isSwitch;
   }
 

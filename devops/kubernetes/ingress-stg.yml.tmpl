@@ -1,0 +1,32 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: ${APP_NAME}-ingress
+  annotations:
+    app.kubernetes.io/name: ${APP_NAME}-ingress
+    app.kubernetes.io/version: ${CI_COMMIT_SHORT_SHA}
+    app.kubernetes.io/managed-by: ci
+    app.kubernetes.io/component: ingress
+    app.kubernetes.io/part-of: ${APPCOMPANYK8S}-${APP_NAME}-svc
+    kubernetes.io/ingress.class: alb
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/subnets: "${SUBNETID1K8S_STG_PUBLIC_1},${SUBNETID1K8S_STG_PUBLIC_2}"
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
+    alb.ingress.kubernetes.io/security-groups: ${SG_ALB_CONTROLLER}
+    alb.ingress.kubernetes.io/certificate-arn: ${ARNCERTIFICATE_K8S}
+    alb.ingress.kubernetes.io/healthcheck-path: ${HEALTHCHECKK8S}
+    alb.ingress.kubernetes.io/success-codes: '200,401'
+#    alb.ingress.kubernetes.io/load-balancer-attributes: 'access_logs.s3.enabled=true,access_logs.s3.bucket=ekss3albk8s,access_logs.s3.prefix=appcompanyk8s-appnamek8s-ingress'
+    external-dns.alpha.kubernetes.io/hostname: ${APP_NAME}.${K8S_DNS_STG}.${REGIONAWSK8S}.${APPCOMPANYK8S}-wefoxgroup.cloud
+  labels:
+    app: ${APP_NAME}-ingress
+    app.kubernetes.io/name: ${APP_NAME}-ingress
+spec:
+  rules:
+  - host: ${APP_NAME}.${K8S_DNS_STG}.${REGIONAWSK8S}.${APPCOMPANYK8S}-wefoxgroup.cloud
+    http:
+      paths:
+      - path: /*
+        backend:
+          serviceName: ${APPCOMPANYK8S}-${APP_NAME}-svc
+          servicePort: 80
