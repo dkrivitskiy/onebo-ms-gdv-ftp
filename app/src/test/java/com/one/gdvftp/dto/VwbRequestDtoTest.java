@@ -41,7 +41,7 @@ public class VwbRequestDtoTest {
 
     val dto = new VwbRequestDTO (today,42,8333, 1, "vsnr-abcdefghijklmno", "fin-abcdefghijklm", begin,
         '1', "N", "V", "Straße", "LKz", "PLZ", "ORT",
-        1, 2, "Vorversicheru-nummer", "Vorakz1234", null, null);
+        "00010029","Vorversicheru-nummer", "Vorakz1234", 'X', 0);
 
     val rec = new VwbRequestEncoder().encode(dto);
     assertThat(rec.length()).isEqualTo(VwbRequestEncoder.SIZE);
@@ -50,7 +50,7 @@ public class VwbRequestDtoTest {
        +"8333"+"001"+"1"+"vsnr-abcdefghijklmno"+"01"+"fin-abcdefghijklm"+"15072019"
        +"1"+"N                                                      "+"V                   "
        +"Straße                        "+"LKz"+"PLZ   "+"ORT                      "
-       +"0001"+"002"+"9"+"Vorversicheru-nummer"+"Vorakz1234"+" "+"0"
+       +"0001"+"002"+"9"+"Vorversicheru-nummer"+"Vorakz1234"+"X"+"0"
     );
   }
 }

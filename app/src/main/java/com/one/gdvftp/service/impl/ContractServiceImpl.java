@@ -156,14 +156,14 @@ public class ContractServiceImpl implements ContractService {
     val activeDetail = activeDetail(details(contract));
     val parameters = parameters(activeDetail);
     val productTypes = productTypes(parameters, contract);
-    val account = contract.getAccount();
+    val account = contract.getAccount();  // TODO: don't use account
     val record = VwbRequestDTO.builder()
         .datum(today)
         .laufendeNummer(sequentialNumber)
         .vuNr(insuranceNumber)
         .vuGstNr(insuranceBranch)
-        .vsNr("foo")  // contract number does not exist in SF
-        .fin(vin(parameters, contract))
+        .vsNr("foo")  // not found in SF
+        .fin(parameter("vehicleId", parameters, true, contract))
         .versichBeginn(initialValidFrom(details, contract))
         .anrede(anrede(account.getGenSex()))
         .vorName(account.getFirstName())
@@ -172,8 +172,7 @@ public class ContractServiceImpl implements ContractService {
         .ldKz(account.getCountry().getIsoCountryCode())
         .plz(account.getBillingPostalCode())
         .ort(account.getBillingCity())
-        .vorVuNr(123)       // not found in SF
-        .vorVuGstNr(45)     // not found in SF
+        .vorVu(parameter("previousInsurer", parameters, true, contract))
         .vorVsNr("foo")     // not found in SF
         .vorAkz("foo")      // not found in SF
         .bescheinigung('X') // not found in SF

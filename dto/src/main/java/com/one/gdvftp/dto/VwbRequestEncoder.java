@@ -34,9 +34,7 @@ public class VwbRequestEncoder extends Encoder<VwbRequestDTO> {
         +A(3, d.getLdKz())
         +A(6, d.getPlz())
         +A(25, d.getOrt())
-        +modulo11(   // N8
-           N( 4, d.getVorVuNr())
-          +N( 3, d.getVorVuGstNr()))
+        +A( 8, d.getVorVu())
         +A(20, d.getVorVsNr())
         +A(10, d.getVorAkz())
         +Z(d.getBescheinigung())

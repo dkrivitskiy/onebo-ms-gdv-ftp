@@ -72,13 +72,9 @@ public class VwbRequestDTO {
    */
   @NonNull final private String ort;
 
-  /** Vierstellige Nummer des Vorversicherers
-   *   */
-  @NonNull final private Integer vorVuNr;
-
-  /** Nummer der Geschäftsstelle des Vorversicherers
-   *   */
-  @NonNull final private Integer vorVuGstNr;
+  /** Vorversichererungsunternehmen
+   *  SF: parameter previousInsurer */
+  @NonNull final private String vorVu;
 
   /** Versicherungsscheinnummer beim Vorversicherer
    *   */
