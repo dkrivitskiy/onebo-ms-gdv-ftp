@@ -163,7 +163,7 @@ public class ContractServiceImpl implements ContractService {
         .vuNr(insuranceNumber)
         .vuGstNr(insuranceBranch)
         .vsNr("foo")  // contract number does not exist in SF
-        .fin("foo")   // VIN does not exist in SF
+        .fin(vin(parameters, contract))   // VIN does not exist in SF
         .versichBeginn(initialValidFrom(details, contract))
         .anrede(anrede(account.getGenSex()))
         .vorName(account.getFirstName())
@@ -315,6 +315,10 @@ public class ContractServiceImpl implements ContractService {
 
   private static String tsn(List<ContractDetailParameter> params, Contract contract) {
     return parameter("vehicleTSN", params, true, contract);
+  }
+
+  private static String vin(List<ContractDetailParameter> params, Contract contract) {
+    return parameter("vehicleId", params, true, contract);
   }
 
   private static LocalDate zulassung(List<ContractDetailParameter> params, Contract contract) {
