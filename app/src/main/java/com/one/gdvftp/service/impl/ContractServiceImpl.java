@@ -170,6 +170,10 @@ public class ContractServiceImpl implements ContractService {
         .anrede(anrede(account.getGenSex()))
         .vorName(account.getFirstName())
         .nachName(account.getLastName())
+        .straße(account.getBillingStreet()+" "+account.getAddressHouseNumber())
+        .ldKz(account.getCountry().getIsoCountryCode())
+        .plz(account.getBillingPostalCode())
+        .ort(account.getBillingCity())
         .build();
     return record;
   }
