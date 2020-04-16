@@ -28,14 +28,9 @@ public class ContractRepositoryIT {
   @Test
   public void testRetrieveSomeContracts() {
 
-
       val contractsTop10 = repo.findAll(PageRequest.of(0, 10)).getContent();
 
       assertThat(contractsTop10).isNotEmpty();
-
-      // TODO: remove later
-      System.out.println("found "+contractsTop10.size()+" contracts");
-      contractsTop10.forEach(System.out::println);
 
   }
 

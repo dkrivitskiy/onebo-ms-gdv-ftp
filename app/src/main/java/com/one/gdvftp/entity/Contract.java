@@ -30,6 +30,9 @@ public class Contract implements Display {
   @Column(name="isdeleted")
   private Boolean deleted;
 
+  @Column(name="statusone__c")
+  private String statusOne;
+
   @Column(name="name")
   private String name;
 
@@ -48,6 +51,7 @@ public class Contract implements Display {
   @JoinColumn(name = "productgroup__r__pkexternalid__c")
   private ProductGroup productGroup;
 
+  @Setter
   @OneToMany(mappedBy = "contract", fetch = FetchType.EAGER)
   private List<ContractDetail> details;
 

@@ -4,6 +4,7 @@ import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.mapping;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
+import static java.util.stream.Collectors.toSet;
 
 import com.one.gdvftp.dto.ZentralrufRecordDTO;
 import com.one.gdvftp.entity.Contract;
@@ -51,24 +52,34 @@ public class ContractServiceImpl implements ContractService {
 
   private final @NonNull FileTransfer transfer;
 
-  Clock clock = Clock.system(ZoneId.of("CET")); // can be changed for tests
+  Clock clock = Clock.system(ZoneId.of("CET"));   // This clock can be replaced for tests.
 
 
   @Override
   public int writeZentralrufRecords(String foldername, int limit) {
     val today = LocalDate.now(clock);
-    val contractsTops = repo.findContractsForZentralruf(today, limit);
-    val writtenCount = writeZentralrufRecords(today, foldername, contractsTops);
+    // val count = repo.countContractsForZentralruf(today);
+    val contracts = repo.findContractsForZentralruf(today, limit);
+    val writtenCount = writeZentralrufRecords(today, foldername, contracts);
     return writtenCount;
   }
 
   public int writeZentralrufRecords(LocalDate today, String foldername, List<Contract> contracts) {
     int writtenCount = 0;
     int errorCount = 0;
-    LocalDate previousDeliveryDate = null;  // TODO: implement
-    Integer previousDeliveryNumber = null;  // TODO: implement
-    int deliveryNumber = previousDeliveryNumber==null ? 1 : previousDeliveryNumber+1;
+
+    LocalDate previousDeliveryDate = today.minusDays(1);  // TODO: real implementation
+    Integer previousDeliveryNumber = null;
+    String prev = previousDeliveryNumber(foldername);
+    int deliveryNumber = 1;
+    if(!prev.isEmpty()) {
+      int prevYear = Integer.valueOf(prev.substring(0,4));
+      previousDeliveryNumber = Integer.valueOf(prev.substring(4,7));
+      deliveryNumber = previousDeliveryNumber + 1;
+      // TODO: start with deliveryNumber=1 if the year changed
+    }
     val filename = ZentralrufRecordDTO.filename(insuranceNumber, insuranceBranch, today, deliveryNumber);
+
     try {
       val file = File.createTempFile(filename, ".tmp");
 
@@ -78,17 +89,20 @@ public class ContractServiceImpl implements ContractService {
         out.write(header); out.write("\n");
 
         for (Contract c : contracts) {
+//          if(c.getName().equals("CON-0310861")) {
+//            System.err.println(c);  // no assistance
+//          }
           try {
             val dto = zentralrufRecordDTO(c);
             val record = dto.toRecord();
             out.write(record); out.write("\n");
             writtenCount++;
           } catch (ContractException e) {
-            errorCount++;
-            log.error(e);
+              errorCount++;
+              log.error(e.getClass().getName() + ": " + e.getMessage());  // don't write a stacktrace to the log
           } catch (Exception e) {
             errorCount++;
-            log.error(e, e);
+            log.error(e);
           }
         }
         log.info("error count: "+errorCount);
@@ -97,8 +111,6 @@ public class ContractServiceImpl implements ContractService {
             today, deliveryNumber, writtenCount,
             previousDeliveryDate, previousDeliveryNumber);
         out.write(footer); out.write("\n");
-      } catch (Throwable e) {
-        log.error(e, e);
       }
 
       // Reading from tempfile
@@ -118,8 +130,9 @@ public class ContractServiceImpl implements ContractService {
     val details = details(contract);
     val activeDetail = activeDetail(details(contract));
     val parameters = parameters(activeDetail);
+    val productTypes = productTypes(parameters, contract);
     val record = ZentralrufRecordDTO.builder()
-        .deckungsArt(deckungsArt(productType(parameters, contract)))
+        .deckungsArt(deckungsArt(productTypes))
         .vuNr(insuranceNumber)
         .vuGstNr(insuranceBranch)
         .vertr(contract.getSymassid())
@@ -130,14 +143,17 @@ public class ContractServiceImpl implements ContractService {
         .sb(deductibles(parameters, contract))
         .hsn(hsn(parameters, contract))
         .tsn(tsn(parameters, contract))
-        .zulassung(zulassung(parameters, contract))
+        .zulassung(
+            isSwitch(productTypes) ? null   // no value for switch contracts
+            : zulassung(parameters, contract)
+        )
         .build();
     return record;
   }
 
-  private String deckungsArt(List<ContractDetailParameter> productType) {
+  private String deckungsArt(List<ContractDetailParameter> productTypes) {
     // TODO: improve
-    val list = productType.stream()
+    val list = productTypes.stream()
         .map(cdp -> cdp.getProductParameter().getBindingFieldToSubmit()).collect(Collectors.toList());
     String art = list.stream().map(s -> s.substring(0,2)).collect(Collectors.joining());
     if(art.contains("KH"))
@@ -188,41 +204,56 @@ public class ContractServiceImpl implements ContractService {
     return list.get(0);
   }
 
-  private static List<ContractDetailParameter> parameters(String name, List<ContractDetailParameter> params, Contract contract) {
+  private static List<ContractDetailParameter> parameters(String name, List<ContractDetailParameter> params, boolean required, Contract contract) {
     val list = params.stream().
         filter(p -> name.equals(p.getParameter().getName())).collect(Collectors.toList());
-    if(list.isEmpty())
+    if(required && list.isEmpty())
       throw new ContractException("Contract does not have parameter "+name+".", contract);
     return list;
   }
 
-  private static String parameter(String name, List<ContractDetailParameter> params, Contract contract) {
-    val list = parameters(name, params, contract);
-// TODO: fix this problem for zulassung
-//    if(list.size()>1)
-//      throw new ContractException("Contract has more than 1 parameter "+name, contract);
-    val result = list.get(0).getValueToShow();
-    return result;
+  private static String parameter(String name, List<ContractDetailParameter> params, boolean required, Contract contract) {
+
+    val list = parameters(name, params, required, contract);
+    val set = list.stream().map(p -> p.getValueToShow()).collect(toSet());
+
+    if(set.size()>1)
+      throw new ContractException("Contract has more than 1 parameter "+name+".", contract);
+
+    if(set.size()==0) {
+      if (required) {
+        throw new ContractException("Contract has no parameter " + name + ".",
+            contract);   // must not happen
+      } else {
+        return null;
+      }
+    }
+
+    return set.iterator().next();
   }
 
   private static String normalizedLicensePlate(List<ContractDetailParameter> params, Contract contract) {
-    val plate = parameter("NormalizedLicensePlate", params, contract);
+    val plate = parameter("NormalizedLicensePlate", params, true, contract);
     val result = plate.replaceAll("_", " ");
+    if(result.contains("Ä") || result.contains("Ö") || result.contains("Ü"))
+      throw new ContractException("Normalized license plate contains umlaut \""+result+"\".", contract);
     return result;
   }
 
-  private static List<ContractDetailParameter> productType(List<ContractDetailParameter> params, Contract contract) {
-    val result = parameters("productType", params, contract);
+  private static List<ContractDetailParameter> productTypes(List<ContractDetailParameter> params, Contract contract) {
+    val result = parameters("productType", params, true, contract);
     return result;
   }
 
   private static Boolean assistance(List<ContractDetailParameter> params, Contract contract) {
-    return Boolean.valueOf(parameter("Assistance", params, contract));
+    val string = parameter("Assistance", params, false, contract);
+    if(string==null) return false;
+    return Boolean.valueOf(string);
   }
 
   // calculate the deductibles (for KH, TK, VK)
   private static Map<String, Integer> deductibles(List<ContractDetailParameter> params, Contract contract) {
-    val deductibles = parameters("deductible", params, contract);
+    val deductibles = parameters("deductible", params, true, contract);
     val size = deductibles.size();
     val map = deductibles.stream().collect(
         groupingBy(p -> StringUtils.left(p.getProductParameter().getBindingFieldToSubmit(), 2),
@@ -240,17 +271,17 @@ public class ContractServiceImpl implements ContractService {
   }
 
   private static Short hsn(List<ContractDetailParameter> params, Contract contract) {
-    val hsn = parameter("vehicleHSN", params, contract);
+    val hsn = parameter("vehicleHSN", params, true, contract);
     if(hsn==null) throw new ContractException("HSN must not be null.", contract);
     return Short.valueOf(hsn);
   }
 
   private static String tsn(List<ContractDetailParameter> params, Contract contract) {
-    return parameter("vehicleTSN", params, contract);
+    return parameter("vehicleTSN", params, true, contract);
   }
 
   private static LocalDate zulassung(List<ContractDetailParameter> params, Contract contract) {
-    val string = parameter("firstRegistrationDateInsured", params, contract);
+    val string = parameter("firstRegistrationDateInsured", params, true, contract);
     if(string==null) throw new ContractException("firstRegistrationDateInsured is null.", contract);
     try {
       val milliseconds = Long.valueOf(string);
@@ -263,4 +294,35 @@ public class ContractServiceImpl implements ContractService {
       throw new ContractException("Can not parse firstRegistrationDateInsured: "+string+".", contract);
     }
   }
+
+  // The productTypes name must contain "Switch".
+  private boolean isSwitch(List<ContractDetailParameter> productTypes) {
+    val isSwitch = productTypes.stream().map((p -> p.getProductParameter().getName()))
+        .allMatch(name -> name.contains("Switch"));
+    return isSwitch;
+  }
+
+
+  /**
+   * Returns the largest delivery number (7 digit including year) from the folder in S3.
+   */
+  private String previousDeliveryNumber(String foldername) {
+
+    // filename contains two 7 digit numbers:
+    //   1) VuNr + VuGstNr
+    //   2) year + delivery number
+    // Example: dat.9496001.aza.2020001
+    val pattern = "^\\D+\\d{7}\\D+\\d{7}$";
+
+    val filename = transfer.listFolder(foldername).stream()
+        .map(path -> path.split("/"))           // split the path into parts
+        .filter(parts -> parts.length == 2)           // path must have 2 parts (foldername+filename)
+        .map(parts -> parts[1])                       // take the filename
+        .filter(name -> name.matches(pattern))        // filter for correct format
+        .map(name -> name.substring(name.length()-7)) // take the last 7 chars
+        .max(String::compareTo);                      // get the largest number (as String)
+
+    return filename.orElse("");
+  }
+
 }

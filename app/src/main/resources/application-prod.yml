@@ -1,0 +1,11 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://ec2-52-214-134-168.eu-west-1.compute.amazonaws.com:5432/d6majjelgmj5jm?ssl=true&sslfactory=org.postgresql.ssl.NonValidatingFactory&readOnly=true
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+
+amazon:
+  s3:
+    bucket: onebo-gdv-ftp-prod
+    accesskey: ${AWS_S3_ACCESSKEY}
+    secret: ${AWS_S3_SECRETKEY}

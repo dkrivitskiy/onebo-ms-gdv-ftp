@@ -17,7 +17,7 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         jdbc.lob.non_contextual_creation: true
         temp.use_jdbc_metadata_defaults: false
-        show_sql: true
+        show_sql: false
         default_schema: salesforce
 
   jackson:
@@ -84,6 +84,7 @@ amazon:
 cron:
   expression:
     #"* * * ? * *" # every 1 seconds
-    "0/10 * * ? * *" # every 10th seconds
+    #"0/10 * * ? * *" # every 10th seconds
     #"0 * * ? * *" # every minute
     #"0 0 * ? * *" # every hour
+    "0 0 12 ? * *" # every day at 12
