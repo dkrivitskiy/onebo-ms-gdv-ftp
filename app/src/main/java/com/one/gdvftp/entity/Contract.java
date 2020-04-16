@@ -55,7 +55,7 @@ public class Contract implements Display {
   private ProductGroup productGroup;
 
   @ManyToOne
-  @JoinColumn(name = "customer__r__pkexternalid__c")
+  @JoinColumn(name = "customer__r__pkexternalid__c")  // strange mapping, because table customer is missing
   private Account Account;
 
   @Setter
