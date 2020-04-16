@@ -151,14 +151,15 @@ public class ContractServiceImpl implements ContractService {
     return record;
   }
 
-  public VwbRequestDTO vwbRequestDTO(Contract contract) {
+  public VwbRequestDTO vwbRequestDTO(Contract contract, LocalDate today, int sequentialNumber) {
     val details = details(contract);
     val activeDetail = activeDetail(details(contract));
     val parameters = parameters(activeDetail);
     val productTypes = productTypes(parameters, contract);
     val account = contract.getAccount();
     val record = VwbRequestDTO.builder()
-//        .deckungsArt(deckungsArt(productTypes))
+        .datum(today)
+        .laufendeNummer(sequentialNumber)
         .vuNr(insuranceNumber)
         .vuGstNr(insuranceBranch)
         .vsNr("foo")  // contract number does not exist in SF

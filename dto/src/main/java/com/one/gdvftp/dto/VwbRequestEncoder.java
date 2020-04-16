@@ -17,10 +17,12 @@ public class VwbRequestEncoder extends Encoder<VwbRequestDTO> {
   @Override
   public String encode(VwbRequestDTO d) {
     val rec = A( 2,"10") // Satzart 10
-        //+A(18, "") // Verbandsvorgangsnummer TODO
+        +N( 4, d.getVuNr())
+        +A( 8, isoDate(d.getDatum()))
+        +N( 6, d.getLaufendeNummer())
         +modulo11(   // N8
-        N( 4, d.getVuNr())
-            +N( 3, d.getVuGstNr()))
+           N( 4, d.getVuNr())
+          +N( 3, d.getVuGstNr()))
         +A(20, d.getVsNr())
         +N( 2, 1) // Anfragegrund (01 = Versichererwechsel)
         +A(17, d.getFin())
@@ -33,7 +35,7 @@ public class VwbRequestEncoder extends Encoder<VwbRequestDTO> {
         +A(6, d.getPlz())
         +A(25, d.getOrt())
         +modulo11(   // N8
-        N( 4, d.getVorVuNr())
+           N( 4, d.getVorVuNr())
           +N( 3, d.getVorVuGstNr()))
         +A(20, d.getVorVsNr())
         +A(10, d.getVorAkz())

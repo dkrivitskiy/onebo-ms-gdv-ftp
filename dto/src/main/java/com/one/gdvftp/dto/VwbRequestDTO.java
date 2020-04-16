@@ -16,6 +16,14 @@ import lombok.val;
 @Builder
 public class VwbRequestDTO {
 
+  /** Datum (Verbands-Vorgangsnummer)
+   */
+  @NonNull final private LocalDate datum;
+
+  /** laufende Nummer (Verbands-Vorgangsnummer)
+   */
+  @NonNull final private Integer laufendeNummer;
+
   /** Vierstellige Nummer des VU
    *  ONE's insurance number 9496 */
   @NonNull final private Integer vuNr;

@@ -40,6 +40,7 @@ public class ZentralrufRecordDtoTest {
         "VK", true, deductibles , 4321, "tsn", date.minusDays(91));
 
     val rec = new ZentralrufRecordEncoder().encode(dto);
+    assertThat(rec.length()).isEqualTo(ZentralrufRecordEncoder.SIZE);
     assertThat(rec).isEqualTo(
         "0123"+"vertr1234567890     "+"fakz12345678"+"000"+"20122021"+"30122021"+"012"+
         "00000000"+"03"+"1"+"2345"+"6789"+"4321"+"tsn"+"2021");

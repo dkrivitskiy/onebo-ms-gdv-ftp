@@ -84,10 +84,11 @@ public class ContractServiceIT {
     assertThat(someContracts).isNotEmpty();
     System.out.println("found "+someContracts.size()+" contracts");
 
+    val today = LocalDate.now(service.clock);
     val records = someContracts.stream().
         map(c -> {
           try {
-            return service.vwbRequestDTO(c);
+            return service.vwbRequestDTO(c, today, 1);
           } catch(ContractException e) {
             System.err.println(e.getMessage());
             throw e;
