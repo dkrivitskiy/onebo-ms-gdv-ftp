@@ -173,7 +173,7 @@ public class ContractServiceImpl implements ContractService {
         .plz(account.getBillingPostalCode())
         .ort(account.getBillingCity())
         .vorVu(parameter("previousInsurer", parameters, true, contract))
-        .vorVsNr("foo")     // not found in SF
+        .vorVsNr(parameter("policyNumberPreviousInsurance", parameters, true, contract))
         .vorAkz("foo")      // not found in SF
         .bescheinigung('X') // not found in SF
         .erinnerung(0)      // TODO: implement something
