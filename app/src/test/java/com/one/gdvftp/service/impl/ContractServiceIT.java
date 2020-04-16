@@ -77,6 +77,36 @@ public class ContractServiceIT {
   }
 
   @Test
+  public void testConvertSomeContractsToVwbRequestDTO() throws ContractException {
+
+    val someContracts = repo.findContractsForVwbRequest(20);
+
+    assertThat(someContracts).isNotEmpty();
+    System.out.println("found "+someContracts.size()+" contracts");
+
+    val records = someContracts.stream().
+        map(c -> {
+          try {
+            return service.vwbRequestDTO(c);
+          } catch(ContractException e) {
+            System.err.println(e.getMessage());
+            throw e;
+            //return null;
+          } catch(Exception e) {
+            e.printStackTrace();
+            throw e;
+            //return null;
+          }
+        }).
+        filter(Objects::nonNull).
+        collect(Collectors.toList());
+
+    // TODO: remove later
+    records.forEach(System.out::println);
+    System.out.println((""+records.size()+" records"));
+  }
+
+  @Test
   public void testWriteZentralrufOneRecord() {
     val parameters = Arrays.asList(
         parameter("productType", "KH", "KH.insurances.product"),

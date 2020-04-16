@@ -51,6 +51,10 @@ public class Contract implements Display {
   @JoinColumn(name = "productgroup__r__pkexternalid__c")
   private ProductGroup productGroup;
 
+  @ManyToOne
+  @JoinColumn(name = "customer__r__pkexternalid__c")
+  private Account Account;
+
   @Setter
   @OneToMany(mappedBy = "contract", fetch = FetchType.EAGER)
   private List<ContractDetail> details;

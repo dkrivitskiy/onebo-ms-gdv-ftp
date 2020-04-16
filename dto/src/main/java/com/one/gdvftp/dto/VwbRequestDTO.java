@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.stream.IntStream;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.ToString;
 import lombok.val;
 
@@ -17,19 +18,19 @@ public class VwbRequestDTO {
 
   /** Vierstellige Nummer des VU
    *  ONE's insurance number 9496 */
-  final private int vuNr;
+  @NonNull final private Integer vuNr;
 
   /** Nummer der VU-Geschäftsstelle
    *  ONE's insurance number 001 */
-  final private int vuGstNr;
+  @NonNull final private Integer vuGstNr;
 
   /** Versicherungsscheinnummer
    *  SF: contractNumber */
-  final private String vsNr;
+  @NonNull final private String vsNr;
 
   /** Fahrzeugidentifizierungsnummer
    *  SF: VIN */
-  final private String fin;
+  @NonNull final private String fin;
 
   /** Versicherungsbeginn
    *  SF: Initial valid Date From */

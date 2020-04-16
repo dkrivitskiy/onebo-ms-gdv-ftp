@@ -6,6 +6,7 @@ import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
 
+import com.one.gdvftp.dto.VwbRequestDTO;
 import com.one.gdvftp.dto.ZentralrufRecordDTO;
 import com.one.gdvftp.dto.ZentralrufRecordEncoder;
 import com.one.gdvftp.entity.Contract;
@@ -44,10 +45,10 @@ import org.springframework.stereotype.Service;
 public class ContractServiceImpl implements ContractService {
 
   @Value("${message.insurance.insurance-number}")  // TODO: can this be a constructor parameter?
-  private Short insuranceNumber;
+  private Integer insuranceNumber;
 
   @Value("${message.insurance.insurance-branch}")  // TODO: can this be a constructor parameter?
-  private Short insuranceBranch;
+  private Integer insuranceBranch;
 
   private final @NonNull ContractRepository repo;
 
@@ -148,6 +149,35 @@ public class ContractServiceImpl implements ContractService {
         )
         .build();
     return record;
+  }
+
+  public VwbRequestDTO vwbRequestDTO(Contract contract) {
+    val details = details(contract);
+    val activeDetail = activeDetail(details(contract));
+    val parameters = parameters(activeDetail);
+    val productTypes = productTypes(parameters, contract);
+    val account = contract.getAccount();
+    val record = VwbRequestDTO.builder()
+//        .deckungsArt(deckungsArt(productTypes))
+        .vuNr(insuranceNumber)
+        .vuGstNr(insuranceBranch)
+        .vsNr("foo")  // contract number does not exist in SF
+//        .vertr(contract.getSymassid())
+        .fin("foo")   // VIN does not exist in SF
+//        .faKz(normalizedLicensePlate(parameters, contract))
+//        .favDatAb(initialValidFrom(details, contract))
+//        .favDatBis(contract.getValidTo())
+        .anrede(anrede(account.getGenSex()))
+        .vorName(account.getFirstName())
+        .nachName(account.getLastName())
+        .build();
+    return record;
+  }
+
+  private Character anrede(String genSex) {
+    // relaxed implementation
+    if(genSex==null || genSex.isEmpty()) return '0';
+    else return genSex.charAt(0);
   }
 
   private String deckungsArt(List<ContractDetailParameter> productTypes) {
