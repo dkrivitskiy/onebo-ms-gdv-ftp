@@ -47,7 +47,7 @@ public class ContractRepositoryTest {
     private final ContractDetail detail = new ContractDetail("d1", false, "ACTIVE", null, emptyList(), null);
 
     private final Contract goodContract = new Contract("c1",false,"Active","one", "1111", tomorrow,
-            germany, motor, null, emptyList());
+            "channel", germany, motor, null, emptyList());
 
     @Test
     public void findContractsForZentralruf() {

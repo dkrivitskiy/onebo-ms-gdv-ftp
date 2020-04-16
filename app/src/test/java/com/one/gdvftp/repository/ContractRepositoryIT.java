@@ -59,6 +59,7 @@ public class ContractRepositoryIT {
     someContracts.forEach(c -> {
       assertThat(c.getDeleted()).isFalse();
       assertThat(c.getStatusOne()).isEqualTo("Active");
+      assertThat(c.getAcquisitionChannel()).isNotEqualTo("Check24");
       assertThat(c.getCountry().getIsoCountryCode()).isEqualTo("DE");
       assertThat(c.getProductGroup().getName()).isEqualTo("Motor");
       val details = c.getDetails();

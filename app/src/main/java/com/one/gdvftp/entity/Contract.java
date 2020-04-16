@@ -42,6 +42,9 @@ public class Contract implements Display {
   @Column(name="validto__c")
   private LocalDate validTo;
 
+  @Column(name="acquisitionchannel__c")
+  private String acquisitionChannel;
+
 
   @ManyToOne
   @JoinColumn(name = "country__r__pkexternalid__c")

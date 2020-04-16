@@ -32,14 +32,14 @@ public class ContractRepositoryImpl implements ContractRepositoryExtension {
         query.where(
             builder.isFalse(contract.get("deleted"))
            ,builder.equal(contract.get("statusOne"), "Active")
+           ,builder.notEqual(contract.get("acquisitionChannel"), "Check24")
            ,builder.equal(contract.get("country").get("isoCountryCode"), "DE")
            ,builder.equal(contract.get("productGroup").get("name"), "Motor")
            ,builder.isFalse(details.get("deleted"))
            ,builder.equal(details.get("status"), "ACTIVE")
            ,builder.equal(parameters.get("productParameter").get("apiKey"), "car.product-type")
            ,builder.like(parameters.get("productParameter").get("name"), "%Switch%")
-            // TODO: Portfolio Owner is not equal to Check24
-            // TODO: VWB Versichererwechsel Status is equal to Not Requested
+            // maybe TODO: VWB Versichererwechsel Status is equal to Not Requested
         );
 
         val result = em.createQuery(query).setMaxResults(limit).getResultList();
