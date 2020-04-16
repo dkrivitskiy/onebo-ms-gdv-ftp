@@ -28,7 +28,10 @@ public class FileTransferIT {
   public void testListObjects() {
     val obs = transfer.listFolder("test/");
     assertThat(obs).isNotEmpty();
-    assertThat(obs).contains("test/");
+    obs.forEach(path ->
+        assertThat(path).startsWith("test/")
+    );
+
   }
 
   @Test

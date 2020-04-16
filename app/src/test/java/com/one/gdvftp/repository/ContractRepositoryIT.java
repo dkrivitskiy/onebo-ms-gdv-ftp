@@ -13,6 +13,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import java.time.LocalDate;
 
+import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 
@@ -62,18 +63,16 @@ public class ContractRepositoryIT {
       assertThat(c.getAcquisitionChannel()).isNotEqualTo("Check24");
       assertThat(c.getCountry().getIsoCountryCode()).isEqualTo("DE");
       assertThat(c.getProductGroup().getName()).isEqualTo("Motor");
-      val details = c.getDetails();
+      val details = c.getDetails().stream().filter(d -> d.getDeleted()==false && "ACTIVE".equals(d.getStatus())).collect(toList());
       assertThat(details).isNotEmpty();
       assertThat(details.size()).isEqualTo(1);
       details.forEach(d-> {
-        assertThat(d.getDeleted()).isFalse();
-        assertThat(d.getStatus()).isEqualTo("ACTIVE");
-        val params = d.getParameters();
-        assertThat(params).isNotEmpty();
-        boolean isSwitch = params.stream().map(p -> p.getProductParameter())
-            .anyMatch(pp->"car.product-type".equals(pp.getApiKey()) && pp.getName().contains("Switch"));
-        assertThat(isSwitch).isTrue();
-      });
+          val params = d.getParameters();
+          assertThat(params).isNotEmpty();
+          boolean isSwitch = params.stream().map(p -> p.getProductParameter())
+              .anyMatch(pp->"car.product-type".equals(pp.getApiKey()) && pp.getName()!=null && pp.getName().contains("Switch"));
+          assertThat(isSwitch).isTrue();
+        });
     });
 
   }
