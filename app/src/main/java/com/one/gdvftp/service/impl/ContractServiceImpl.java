@@ -163,7 +163,7 @@ public class ContractServiceImpl implements ContractService {
         .vuNr(insuranceNumber)
         .vuGstNr(insuranceBranch)
         .vsNr("foo")  // contract number does not exist in SF
-        .fin(vin(parameters, contract))   // VIN does not exist in SF
+        .fin(vin(parameters, contract))
         .versichBeginn(initialValidFrom(details, contract))
         .anrede(anrede(account.getGenSex()))
         .vorName(account.getFirstName())
