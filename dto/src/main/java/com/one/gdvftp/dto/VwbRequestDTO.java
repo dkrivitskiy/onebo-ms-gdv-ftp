@@ -42,58 +42,58 @@ public class VwbRequestDTO {
 
   /** Versicherungsbeginn
    *  SF: Initial valid Date From */
-  final private LocalDate versichBeginn;
+  @NonNull final private LocalDate versichBeginn;
 
   /** Versicherungsnehmer Anredeschlüssel (0 or 1)
    * SF: sex */
-  final private Character anrede;
+  @NonNull final private Character anrede;
 
   /** Versicherungsnehmer Namenszeile 1 + 2
    * SF: Last Name */
-  final private String nachName;
+  @NonNull final private String nachName;
 
   /** Versicherungsnehmer Namenszeile 3
    * SF: First Name */
-  final private String vorName;
+  @NonNull final private String vorName;
 
   /** Versicherungsnehmer Straße
    */
-  final private String straße;
+  @NonNull final private String straße;
 
   /** Versicherungsnehmer LdKz
    */
-  final private String ldKz;
+  @NonNull final private String ldKz;
 
   /** Versicherungsnehmer PLZ
    */
-  final private String plz;
+  @NonNull final private String plz;
 
   /** Versicherungsnehmer Ort
    */
-  final private String ort;
+  @NonNull final private String ort;
 
   /** Vierstellige Nummer des Vorversicherers
    *   */
-  final private int vorVuNr;
+  @NonNull final private Integer vorVuNr;
 
   /** Nummer der Geschäftsstelle des Vorversicherers
    *   */
-  final private int vorVuGstNr;
+  @NonNull final private Integer vorVuGstNr;
 
   /** Versicherungsscheinnummer beim Vorversicherer
    *   */
-  final private String vorVsNr;
+  @NonNull final private String vorVsNr;
 
   /** AKZ beim Vorversicherer
    *   */
-  final private String vorAkz;
+  @NonNull final private String vorAkz;
 
   /** Bescheinigung gem. Par. 5 PflVersG wurde vorgelegt
    */
-  final private Character bescheinigung;
+  @NonNull final private Character bescheinigung;
 
   /** n-te Erinnerung
    * */
-  final private Integer erinnerung;
+  @NonNull final private Integer erinnerung;
 
 }

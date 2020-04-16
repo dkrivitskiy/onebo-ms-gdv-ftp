@@ -163,11 +163,8 @@ public class ContractServiceImpl implements ContractService {
         .vuNr(insuranceNumber)
         .vuGstNr(insuranceBranch)
         .vsNr("foo")  // contract number does not exist in SF
-//        .vertr(contract.getSymassid())
         .fin("foo")   // VIN does not exist in SF
-//        .faKz(normalizedLicensePlate(parameters, contract))
-//        .favDatAb(initialValidFrom(details, contract))
-//        .favDatBis(contract.getValidTo())
+        .versichBeginn(initialValidFrom(details, contract))
         .anrede(anrede(account.getGenSex()))
         .vorName(account.getFirstName())
         .nachName(account.getLastName())
@@ -175,6 +172,12 @@ public class ContractServiceImpl implements ContractService {
         .ldKz(account.getCountry().getIsoCountryCode())
         .plz(account.getBillingPostalCode())
         .ort(account.getBillingCity())
+        .vorVuNr(123)       // not found in SF
+        .vorVuGstNr(45)     // not found in SF
+        .vorVsNr("foo")     // not found in SF
+        .vorAkz("foo")      // not found in SF
+        .bescheinigung('X') // not found in SF
+        .erinnerung(0)      // TODO: implement something
         .build();
     return record;
   }
